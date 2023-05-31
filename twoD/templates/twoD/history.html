@@ -1,0 +1,68 @@
+{% extends "twoD/layout.html" %}
+{% load static %}
+{% load humanize %}
+{% block content %}
+<div class="list-group">
+  <a href='{% url 'index' %}' type='button' class='nav-btn-custom no-bdr-top'>Home</a>
+  <a type='button' class='nav-btn-custom no-bdr-bottom' href='{% url 'logout_view' %}' >Logout</a>
+  
+</div>
+{% endblock %}
+              
+{% block body %}
+<h3 class="text-center">History </h3>
+{% if messages  %}
+    {% for message in messages %}
+        <h4 class="text-center {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</h4>
+    {% endfor %}
+{% endif %}
+
+<script src=""></script>
+<div class="accordion mb-3" id="accordionExample">
+{% for a in arcs %}
+<div class="accordion-item">
+    <h2 class="accordion-header">
+      <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_{{ a.arc.id }}" aria-expanded="true" aria-controls="collapse_{{ a.arc.id }}">
+        <p><b>{{ a.arc.user.first_name|upper }}</b>|<span>{{ a.arc.date|naturalday }}({{ a.arc.ampm }})<br>TOTAL-</span><b>{{ a.total|intcomma }}</b>{% if a.arc.jp %} | Jackpot No- <b class='bg-success rounded p-1'>{{ a.arc.jp }}</b>{% endif %}</p>
+      </button>
+    </h2>
+    <div id="collapse_{{ a.arc.id }}" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+      <div class="accordion-body">
+        <div class='row row-cols-auto'>
+            {% for l in a.arc.archiveLog.all %}
+            <div class='col col-auto border border-1 p-2'><b class='bg-info rounded p-1'>{{ l.num.num }}</b><span class='ms-1'>{{ l.value|intcomma }}</span>
+            {% if l.limit != 99999999999 %}/{{ l.limit|intcomma }}{% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% if a.arc.jp %}
+        <div class='row'>
+          <div class='col col-auto'>Loss- </div><div class='col col-auto'><b>{{ a.loss|intcomma }}</b></div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endfor %}
+</div>
+
+<div class='container mx-auto mt-3' style="width: fit-content">
+<div class="pagination">
+    <span class="step-links">
+        {% if arcs.has_previous %}
+            <a href="?page=1">&laquo; first</a>
+            <a href="?page={{ arcs.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ arcs.number }} of {{ arcs.paginator.num_pages }}.
+        </span>
+
+        {% if arcs.has_next %}
+            <a href="?page={{ arcs.next_page_number }}">next</a>
+            <a href="?page={{ arcs.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+</div>
+{% endblock %}

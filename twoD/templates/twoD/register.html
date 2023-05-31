@@ -1,0 +1,37 @@
+{% extends "twoD/layout.html" %}
+{% load static %}
+
+{% block body %}
+<div>
+    
+    <form action="{% url 'register' %}" method="post">
+        {% csrf_token %}
+        <h2 class="text-center mb-3">Register</h2>
+        {% if messages  %}
+          {% for message in messages %}
+          <h4 class="text-center {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</h4>
+          {% endfor %}
+
+          {% endif %}
+        <fieldset>
+            <input type="text" name="name" id="name" placeholder="Full Name" class="form-input">
+            <input type="text" name="username" id="username" placeholder="Username" class="form-input">
+            <input type="tel" name="phone" id="phone" placeholder="Phone Number" class="form-input">
+        </fieldset>
+        <fieldset>
+            <input type="password" name="password" id="password" placeholder="Password" class="form-input">
+            <input type="password" name="confirmation" id="confirmation" placeholder="Confirm Password" class="form-input">
+        </fieldset>
+        <div  class="form-btn-div">
+            <input type="submit" value="Sign Up" class="form-btn">
+            
+        </div>
+        <fieldset>
+            <p class="text-center">If you don't have an account,<a class="mx-1" href="{% url 'login' %}">Login</a>here.</p>
+        </fieldset>
+    </form>
+</div>
+
+
+
+{% endblock %}

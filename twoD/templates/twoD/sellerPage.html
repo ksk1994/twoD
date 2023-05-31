@@ -1,0 +1,63 @@
+{% extends "twoD/layout.html" %}
+{% load static %}
+
+{% block content %}
+<div class="list-group">
+
+  <button type='button' class='nav-btn-custom no-bdr-top' onclick="GetMyLogs()">Check Today Logs</button>
+  <a type='button' class='nav-btn-custom' href='{% url 'history' %}'>Check History Logs</a>
+  <button type='button' class='nav-btn-custom' onclick="GetTotalAcount()">Check Total</button>
+  <a type='button' class='nav-btn-custom no-bdr-bottom' href='{% url 'logout_view' %}' >Logout</a>
+  
+</div>
+{% endblock %}
+
+
+{% block body %}
+<script src="{% static 'twoD/sellerpage.js' %}"></script>
+<h2 class="text-center">Welcome {{ user.first_name }} (seller page)</h2>
+<button type="button" id='logModalBtn' data-bs-toggle="modal" data-bs-target="#logModal" hidden>
+</button>
+  
+  <div class="modal fade" id="logModal" tabindex="-1" aria-labelledby="logModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="logModalLabel"></h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body"  id='logMdlBody'>
+          
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% if messages  %}
+    {% for message in messages %}
+        <h4 class="text-center {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</h4>
+    {% endfor %}
+{% endif %}
+
+
+<div class='loadingDi' id='loadingDiv' style='display: none;'>
+  <div class='position-absolute top-50 start-50 translate-middle'>
+    <div class="spinner-border my-auto text-light" role="status">
+      <span class="visually-hidden">Loading...</span>
+  </div>
+  </div>
+</div>
+
+
+<div class="input-num" id='allData'>
+    
+</div>
+
+
+
+
+{% endblock %}

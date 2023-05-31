@@ -1,0 +1,83 @@
+{% extends "twoD/layout.html" %}
+{% load static %}
+
+
+{% block content %}
+<div class="list-group">
+  <button type='button' class='nav-btn-custom no-bdr-top' onclick="showSetLimit()">Add Limit</button>
+  <button type='button' class='nav-btn-custom ' onclick="checkTotal()" >Check Total</button>
+  <a type='button' class='nav-btn-custom ' href='{% url 'history' %}' >Check History</a>
+  <button type='button' class='nav-btn-custom ' onclick='showCloseEntry()'>Close Entry</button>
+  <button type='button' class='nav-btn-custom ' onclick='showAddJackpot()'>Add Jackpot</button>
+  <a class="nav-btn-custom" href="{% url 'register' %}">Sign Up</a>
+  <a type='button' class='nav-btn-custom no-bdr-bottom' href='{% url 'logout_view' %}' >Logout</a>
+</div>
+{% endblock %}
+
+{% block body %}
+<script src="{% static 'twoD/index.js' %}"></script>
+{% if messages  %}
+    {% for message in messages %}
+        <h4 class="text-center {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</h4>
+    {% endfor %}
+{% endif %}
+
+
+
+<button type="button" id='logModalBtn' data-bs-toggle="modal" data-bs-target="#logModal" hidden>
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="logModal" tabindex="-1" aria-labelledby="logModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="mdl_title"></h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id='mdl_close'></button>
+      </div>
+      <div class="modal-body"  id='mdl_body'>
+        
+      </div>
+      <div class="modal-footer" id='mdl_footer'>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="hide_total">
+
+</div>
+<div class='loadingDi' id='loadingDiv' style='display: none;'>
+  <div class='position-absolute top-50 start-50 translate-middle'>
+    <div class="spinner-border my-auto text-light" role="status">
+      <span class="visually-hidden">Loading...</span>
+  </div>
+  </div>
+</div>
+<div class="table-container">
+  <table class='table table-srtiped'>
+    <thead>
+      <tr>
+        <th>NO</th>
+        {% for user in users %}
+          <th data-id='{{ user.id }}' class='users'>{{ user.first_name }}</th>
+        {% endfor %%}
+      </tr>
+    </thead>
+    <tbody>
+      {% for num in nums %}
+        <tr>
+          <td class='nums' data-id='{{ num.id }}'>{{ num.num }}</td>
+          {% for user in users %}
+          <td id='value_{{ num.id }}_{{ user.id }}'></td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

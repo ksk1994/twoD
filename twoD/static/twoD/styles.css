@@ -1,0 +1,212 @@
+:root,
+:root.light {
+    --lig--color: #DEEFE7;
+    --drk--color: #262626;
+    --bg--color: #DEEFE7;
+    --bg--txt: #002b56;
+    --btn--pri: #159A9C;
+    --btn--hov: #116a80;
+    --crd--color: #FFFFFF;
+    --crd--txt: #002952;
+    --crd--hov: #ebebeb;
+    --shd--color: #2e2e28;
+    --shd-l1: 6px 6px 12px #117b7d, -6px -6px 12px #19b9bb;
+    --shd-l2: 8px 8px 16px #10787a, -8px -8px 16px #1abcbe;
+    --shd-l3: 10px 10px 20px #107475, -10px -10px 20px #1ac1c3;
+    --shd-in: inset 10px 10px 20px #107475,
+    inset -10px -10px 20px #1ac1c3;
+    --bg--moz: -moz-linear-gradient(135deg, rgba(75,83,242,1) 0%, rgba(242,242,242,1) 66%);
+    --bg--grd: linear-gradient(135deg, rgba(75,83,242,1) 0%, rgba(242,242,242,1) 66%);
+
+}
+
+:root.dark {
+    --lig--color: #DEEFE7;
+    --drk--color: #262626;
+    --bg--color: #262626;
+    --bg--txt: #fdfeff;
+    --btn--pri: #159A9C;
+    --btn--hov: #116a80;
+    --crd--color: #B4BEC9;
+    --crd--txt: #002d5a;
+    --crd--hov: #d9dee4;
+    --shd--color: #000000;
+    --shd-l1: 6px 6px 12px #101216, -6px -6px 12px #262c36;
+    --shd-l2: 6px 6px 12px #0e1014, -6px -6px 12px #282e38;
+    --shd-l3: 6px 6px 12px #0b0c0f, -6px -6px 12px #2b323d;
+    --bg--moz: -moz-linear-gradient(135deg, rgba(75,83,242,1) 0%, rgba(38,38,38,1) 50%);
+    --bg--grd: linear-gradient(135deg, rgba(75,83,242,1) 0%, rgba(38,38,38,1) 50%);
+}
+
+.bg-grd {
+    background: var(--bg--grd);
+}
+
+.alertmessage {
+    width: fit-content;
+    height: fit-content;
+    padding: auto 3rem;
+}
+
+body {
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-image: var(--bg--moz);
+    background-image: var(--bg--grd);
+    color: var(--bg--txt);
+    background-attachment: fixed;
+}
+
+form {
+    margin: 20vh auto;
+    width: fit-content;
+}
+
+fieldset {
+    margin: 0 auto;
+    min-width: 320px;
+    max-width: 35vw;
+    padding: 0 auto;
+}
+
+.form-input {
+    border: none;
+    border-radius: 15px;
+    width: 97%;
+    margin: 8px;
+    padding: 5px 10px;
+    height: 3rem;
+}
+
+.form-input:focus {
+    outline: none;
+}
+
+.form-btn-div {
+    width: fit-content;
+    margin: 0 auto;
+}
+
+.form-btn {
+    width: 100px;
+    height: 3rem;
+    margin: 1rem auto;
+    border: none;
+    border-radius: 10px;
+    background-color: var(--btn--pri);
+    box-shadow: var(--shd-l1);
+    transition: 0.3s;
+}
+
+.form-btn:hover {
+    box-shadow: var(--shd-l2)
+}
+
+.form-btn:active {
+    box-shadow: var(--shd-in);
+}
+
+
+.success {
+    margin: 1rem;
+    color: rgb(105, 240, 105);
+}
+
+.error {
+    margin: 1rem;
+    color: rgb(226, 53, 53);
+}
+
+div.input-num {
+    margin: 0 auto;
+    width: 80vw;
+    min-width: 350px;
+}
+
+.fit-width {
+    width: 30px !important;
+}
+
+.nav-btn-custom {
+    color: var(--bg--txt);
+    text-align: center;
+    padding: 10px;
+    width: 200px !important;
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid black;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+
+.nav-btn-custom:hover {
+    color: var(--bg--txt);
+    text-align: center;
+    letter-spacing: 2px;
+    background-color: #ffffff50;    
+}
+
+.no-bdr-bottom {
+    border-bottom: none;
+}
+
+
+.nav-bg {
+    background-color: #0000002d;
+}
+
+.loadingDi {
+    background-color: #00000070;
+    z-index: 9999999 !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+}
+  
+  .table-container {
+    position: fixed;
+    max-width: 100%; /* Ensure the container fits its parent */
+    max-height: 90%;
+    overflow-x: auto; /* Enable horizontal scrolling */
+    overflow-y: visible; /* Allow vertical overflow */
+  }
+  
+  table {
+    width: 100%; /* Make the table occupy the entire container */
+    height: 100%;
+    border-collapse: collapse; /* Remove space between table cells */
+    table-layout: auto; /* Lock table layout to prevent column width changes */
+  }
+  
+  thead {
+    position: sticky;
+    top: 0;
+    background-color: #f2f2f2; /* Set background color for sticky header */
+    z-index: 5; /* Ensure header is above other elements */
+  }
+
+  thead > tr > th {
+    width: fit-content !important;
+  }
+  
+  th,
+  td {
+    padding: 8px;
+    width: fit-content !important;
+  }
+  
+  th:first-child,
+  td:first-child {
+    position: sticky;
+    left: 0;
+    width: 40px;
+    text-align: center;
+    background-color: var(--lig--color); /* Set background color for fixed column */
+  }
+  

@@ -1,0 +1,28 @@
+{% extends "twoD/layout.html" %}
+{% load static %}
+
+{% block body %}
+<div>
+    <form action="{% url 'login' %}" method="post">
+        {% csrf_token %}
+        <h2 class="text-center mb-3">Login</h2>
+        {% if messages  %}
+          {% for message in messages %}
+          <h4 class="text-center {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</h4>
+          {% endfor %}
+
+          {% endif %}
+        <fieldset>
+            <input type="text" name="username" id="username" placeholder="Username" class="form-input">
+            <input type="password" name="password" id="password" placeholder="Password" class="form-input">
+        </fieldset>
+        
+            <div class="form-btn-div">
+                <input type="submit" class="form-btn text-center" value="Login">
+            </div>
+    </form>
+</div>
+
+
+
+{% endblock %}
