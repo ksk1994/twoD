@@ -43,6 +43,10 @@ class Value(models.Model):
     limit = models.IntegerField(default=99999999999)
 
 
+    def __str__(self):
+        return f"{self.amount} {self.limit}"
+
+
     def serialize(self):
         return {
             'id': self.id,
@@ -53,6 +57,10 @@ class Value(models.Model):
             'limit': self.limit,
         }
 
+    def checkLimit(self, newValue):
+        if self.limit < self.amount + int(newValue):
+            return True
+        return False
 
 class Number(models.Model):
     num = models.CharField(max_length=3)
@@ -89,7 +97,9 @@ class Archive(models.Model):
     ampm = models.CharField(max_length=3, blank=True, null=True)
     archiveLog = models.ManyToManyField('ArchiveLog', related_name='archive_logs')
     jp = models.CharField(max_length=3, blank=True, null=True)
-
+    payout_rate = models.FloatField(default=80.0)
+    commission = models.FloatField(default=0.12)
+    
     def serialize(self):
         return {
             'id': self.id,
@@ -100,4 +110,18 @@ class Archive(models.Model):
             'logs': [l.serialize() for l in self.archiveLog.all()],
         }
 
+class UserSetting(models.Model):
+    user = models.ForeignKey('User', models.CASCADE, related_name='user_setting')
+    limit = models.IntegerField(default=99999999999)
+    payout_rate = models.FloatField(default=80.0)
+    commission = models.FloatField(default=0.12)
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'user_name': self.user.first_name,
+            'limit': self.limit,
+            'payRate': self.payout_rate,
+            'commission': self.commission
+        }
 

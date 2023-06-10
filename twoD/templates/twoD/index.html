@@ -6,10 +6,11 @@
 <div class="list-group">
   <button type='button' class='nav-btn-custom no-bdr-top' onclick="showSetLimit()">Add Limit</button>
   <button type='button' class='nav-btn-custom ' onclick="checkTotal()" >Check Total</button>
-  <a type='button' class='nav-btn-custom ' href='{% url 'history' %}' >Check History</a>
   <button type='button' class='nav-btn-custom ' onclick='showCloseEntry()'>Close Entry</button>
   <button type='button' class='nav-btn-custom ' onclick='showAddJackpot()'>Add Jackpot</button>
+  <a type='button' class='nav-btn-custom ' href='{% url 'history' %}' >Check History</a>
   <a class="nav-btn-custom" href="{% url 'register' %}">Sign Up</a>
+  <a class="nav-btn-custom" href="{% url 'setting' %}">Setting</a>
   <a type='button' class='nav-btn-custom no-bdr-bottom' href='{% url 'logout_view' %}' >Logout</a>
 </div>
 {% endblock %}
@@ -39,13 +40,21 @@
         
       </div>
       <div class="modal-footer" id='mdl_footer'>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" id='mdl_close' class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         
       </div>
     </div>
   </div>
 </div>
-
+<div id='hide_setting'>
+  {% for setting in settings %}
+    <div id='setting_{{ setting.user.id }}'>
+      <input type='number' id='defaultLimit_{{ setting.user.id }}' value='{{ setting.limit }}' hidden>
+      <input type='number' id='payRate_{{ setting.user.id }}' value='{{ setting.payout_rate }}' hidden>
+      <input type='number' id='commission_{{ setting.user.id }}' value='{{ setting.commission }}' hidden>
+    </div>
+  {% endfor %}
+</div>
 
 <div id="hide_total">
 
@@ -58,12 +67,12 @@
   </div>
 </div>
 <div class="table-container">
-  <table class='table table-srtiped'>
+  <table>
     <thead>
       <tr>
         <th>NO</th>
         {% for user in users %}
-          <th data-id='{{ user.id }}' class='users'>{{ user.first_name }}</th>
+          <th data-id='{{ user.id }}' class='users'  style='width: 100px;word-break: keep-all;'>{{ user.first_name }}</th>
         {% endfor %%}
       </tr>
     </thead>

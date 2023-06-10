@@ -21,6 +21,7 @@
                   <div class="offcanvas offcanvas-start rounded" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel"  style='width: fit-content;background-color: #ffffffaa'>
                     
                     <div class="offcanvas-body pt-5 p-0">
+                        <button type="button" id='closeOffCanvas' data-bs-dismiss="offcanvas" aria-label="Close" hidden></button>
                         {% block content %}
                         {% endblock %}
                       
@@ -30,7 +31,12 @@
               
             </div>
           </nav>
-      
+    
+
+          <div aria-live="polite" aria-atomic="true" class="position-relative">
+            <div class="toast-container top-0 end-0 p-3" id="noti_con">
+            </div>
+          </div>
     {% block body %}
     {% endblock %}
         

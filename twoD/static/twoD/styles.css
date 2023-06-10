@@ -130,6 +130,10 @@ div.input-num {
     width: 30px !important;
 }
 
+.fit {
+    width: fit-content !important;
+}
+
 .nav-btn-custom {
     color: var(--bg--txt);
     text-align: center;
@@ -175,10 +179,11 @@ div.input-num {
     max-height: 90%;
     overflow-x: auto; /* Enable horizontal scrolling */
     overflow-y: visible; /* Allow vertical overflow */
+    
   }
   
   table {
-    width: 100%; /* Make the table occupy the entire container */
+    width: fit-content !important; /* Make the table occupy the entire container */
     height: 100%;
     border-collapse: collapse; /* Remove space between table cells */
     table-layout: auto; /* Lock table layout to prevent column width changes */
@@ -191,14 +196,12 @@ div.input-num {
     z-index: 5; /* Ensure header is above other elements */
   }
 
-  thead > tr > th {
-    width: fit-content !important;
-  }
+
   
   th,
   td {
     padding: 8px;
-    width: fit-content !important;
+    width: 15rem !important;
   }
   
   th:first-child,
@@ -210,3 +213,20 @@ div.input-num {
     background-color: var(--lig--color); /* Set background color for fixed column */
   }
   
+
+  .remove {
+    opacity: 1;
+    transform: translateX(0);
+    animation: delete 0.3s ease-in 1 forwards;
+  }
+
+  @keyframes delete {
+    0% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(-3000px);
+    }
+  }

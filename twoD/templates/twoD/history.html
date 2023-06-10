@@ -1,11 +1,16 @@
 {% extends "twoD/layout.html" %}
 {% load static %}
 {% load humanize %}
+{% load custom_tags %}
 {% block content %}
 <div class="list-group">
   <a href='{% url 'index' %}' type='button' class='nav-btn-custom no-bdr-top'>Home</a>
-  <a type='button' class='nav-btn-custom no-bdr-bottom' href='{% url 'logout_view' %}' >Logout</a>
+  {% if user.is_owner %}
+  <a type='button' class='nav-btn-custom ' href='{% url 'setting' %}' >Setting</a>
+  <a class="nav-btn-custom" href="{% url 'register' %}">Sign Up</a>
+  {% endif %}
   
+  <a type='button' class='nav-btn-custom no-bdr-bottom' href='{% url 'logout_view' %}' >Logout</a>
 </div>
 {% endblock %}
               
@@ -23,23 +28,49 @@
 <div class="accordion-item">
     <h2 class="accordion-header">
       <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_{{ a.arc.id }}" aria-expanded="true" aria-controls="collapse_{{ a.arc.id }}">
-        <p><b>{{ a.arc.user.first_name|upper }}</b>|<span>{{ a.arc.date|naturalday }}({{ a.arc.ampm }})<br>TOTAL-</span><b>{{ a.total|intcomma }}</b>{% if a.arc.jp %} | Jackpot No- <b class='bg-success rounded p-1'>{{ a.arc.jp }}</b>{% endif %}</p>
+        <p><b>{{ a.arc.user.first_name|upper }} </b>| <span> {{ a.arc.date|naturalday }}({{ a.arc.ampm }})</p>
+        
       </button>
     </h2>
     <div id="collapse_{{ a.arc.id }}" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
       <div class="accordion-body">
-        <div class='row row-cols-auto'>
-            {% for l in a.arc.archiveLog.all %}
-            <div class='col col-auto border border-1 p-2'><b class='bg-info rounded p-1'>{{ l.num.num }}</b><span class='ms-1'>{{ l.value|intcomma }}</span>
-            {% if l.limit != 99999999999 %}/{{ l.limit|intcomma }}{% endif %}
-            </div>
-            {% endfor %}
+        
+        {% if a.arc.jp %}
+        <div class='row'>
+          <div class='col col-auto'>Jackpot Number- </div><div class='col col-auto'><b class='bg-success rounded p-1'>{{ a.arc.jp }}</b></div>
+        </div>
+        {% endif %}
+        <div class='row'>
+          <div class='col col-auto'>TOTAL- </div><div class='col col-auto'><b>{{ a.total|intcomma }}</b></div>
         </div>
         {% if a.arc.jp %}
         <div class='row'>
-          <div class='col col-auto'>Loss- </div><div class='col col-auto'><b>{{ a.loss|intcomma }}</b></div>
+          <div class='col col-auto'>Pay Out- </div><div class='col col-auto'><b>{{ a.loss|intcomma }}</b></div>
         </div>
         {% endif %}
+        {% if a.commission != 0 %}
+        <div class='row'>
+          <div class='col col-auto'>Commission- </div><div class='col col-auto'><b>{{ a.commission|intcomma }}</b></div>
+        </div>
+        {% endif %}
+
+        {% if a.net != 0 %}
+        <div class='row'>
+        {% if a.net < 0 %}
+          <div class='col col-auto'><p>{{ a.arc.user.first_name|upper }} get <b class='p-1 border-1 rounded bg-info'>{{ a.net|abs_value|intcomma }}</b></p></div>
+        {% elif a.net > 0 %}
+          <div class='col col-auto'><p>{{ a.arc.user.first_name|upper }} pay <b class='p-1 border-1 rounded bg-info'>{{ a.net|abs_value|intcomma }}</b></p></div>
+        {% endif %}
+        </div>
+        {% endif %}
+        <div class='row row-cols-auto'>
+            {% for l in a.arc.archiveLog.all %}
+            <div class='col col-auto border border-1 p-2'><b class='bg-info rounded p-1'>{{ l.num.num }}</b><span class='ms-1'>{{ l.value|intcomma }}</span>
+            {% if l.limit != 99999999999 %}/{{ l.limit|intword }}{% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        
       </div>
     </div>
   </div>

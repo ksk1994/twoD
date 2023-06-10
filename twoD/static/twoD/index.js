@@ -1,21 +1,68 @@
 document.addEventListener('DOMContentLoaded', function () {
+    loadAllData();
+})
+
+
+function showNewNoti(str, ok, id) {
+    console.log(id)
+    if (document.getElementById(`noti_${id}`)) {
+        document.getElementById(`noti_${id}`).remove();
+    }
+    var div = document.createElement("div");
+    div.id = `noti_${id}`
+    if (ok) {
+        div.className = 'toast align-items-center text-bg-success border-0'
+    } else {
+        div.className = 'toast align-items-center text-bg-danger border-0'
+    }
+    
+    div.role = 'alert';
+    div.ariaLive = 'assertive';
+    div.ariaAtomic = 'true';
+    div.setAttribute('data-bs-delay', 5000)
+    div.innerHTML = `
+    <div class="d-flex">
+        <div class="toast-body" id="new_noti_body">
+          ${str}
+        </div>
+        <button type="button" id="close_${id}" class="btn-close btn-close-white me-2 m-auto toastClose" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    `
+    document.getElementById('noti_con').append(div);
+    const toastLiveExample = document.getElementById(`noti_${id}`)
+    const toast = new bootstrap.Toast(toastLiveExample)
+    toast.show()
+    setInterval(function() {
+        document.getElementById(`close_${id}`).click()
+    }, 5000);
+}
+
+
+
+function loadAllData() {
     showLoading();
     fetch('/getOwnerData')
     .then(response => response.json())
     .then((data) => {
         hideLoading();
+        if (data.msg === 'error') {
+            showNewNoti('Some error occours! Reload the page!', false, 'error')
+        }
+        
         let totalDiv = document.getElementById('hide_total');
-
+        
         for (let y = 0; y < data.data.length; y++) {
             let user = data.data[y]['user'];
+            let setting = data.data[y]['setting']
             let total = 0
             for (let x = 0; x < data.data[y]['vals'].length; x++) {
+                
                 let val = data.data[y]['vals'][x];
                 let td = document.getElementById(`value_${val['num']['id']}_${user['id']}`);
-                if (val['limit'] === 99999999999) {
-                    td.innerHTML = `<div class='row'><div class='col'>${val['amount']}</div></div>`;
+                if (val['limit'] === setting['limit']) {
+                    td.innerHTML = `<div class='row'><div class='col vals'>${val['amount']}</div></div>`;
                 } else {
-                    td.innerHTML = `<div class='row'><div class='col'>${val['amount']}</div></div><div class='row' id='limit_${val['num']['id']}_${user['id']}'><div class='col'><small>(${val['limit']})</small></div></div>`;
+                    td.innerHTML = `<div class='row'><div class='col vals'>${val['amount']}</div></div><div class='row lims' id='limit_${val['num']['id']}_${user['id']}'><div class='col'><small>(${val['limit']})</small></div></div>`;
                 }
                 total += val['amount']
                 
@@ -31,19 +78,18 @@ document.addEventListener('DOMContentLoaded', function () {
             
         }
     })
-})
-
+}
 
 function limitColor(num, user, limit, amount) {
     let amountDiv = document.getElementById(`value_${num}_${user}`);
     if (limit/10*9 < amount) {
-        amountDiv.className = 'input-group-text bg-danger';
+        amountDiv.className = 'bg-danger';
     } else if (limit/6*5 < amount) {
-        amountDiv.className = 'input-group-text bg-danger-subtle';
+        amountDiv.className = 'bg-danger-subtle';
     } else if (limit/5*4 < amount) {
-        amountDiv.className = 'input-group-text bg-warning';
+        amountDiv.className = 'bg-warning';
     } else if(limit/4*3 < amount) {
-        amountDiv.className = 'input-group-text bg-warning-subtle';
+        amountDiv.className = 'bg-warning-subtle';
     } else {
         amountDiv.className = '';
     }
@@ -165,8 +211,8 @@ function showSetLimit() {
     document.getElementById('mdl_submit').onclick = function() {
         setLimit();
     };
-
-    document.getElementById('mdl_submit').innerHTML = 'Set Limit'
+    document.getElementById('mdl_submit').style.width = '160px';
+    document.getElementById('mdl_submit').innerHTML = 'Set Limit';
     
     document.getElementById('logModalBtn').click();
 
@@ -185,7 +231,7 @@ function setLimit() {
         const headers = {
             'X-CSRFToken': getCookie('csrftoken'),
         };
-        showLoading()
+        showBtnLoading()
         fetch('/setLimit', {
             method: 'PUT',
             headers: headers,
@@ -197,25 +243,34 @@ function setLimit() {
         })
         .then(response => response.json())
         .then((data) => {
-            hideLoading()
+            hideBtnLoading('Set Limit')
+            if (data.msg === 'error') {
+                showNewNoti('Some error occours! Retry!', false, 'error')
+            }
+            
             console.log(data)
             if (data.vals) {
                 for (let i = 0; i < data.vals.length; i++) {
                     let v = data.vals[i];
-                    if (v['limit'] != 99999999999) {
+                    let defaultLimit = parseInt(document.getElementById(`defaultLimit_${v['user_id']}`).value);
+                    console.log(defaultLimit)
+                    if (v['limit'] != defaultLimit) {
                         if (document.getElementById(`limit_${v['num']['id']}_${v['user_id']}`)) {
                             document.getElementById(`limit_${v['num']['id']}_${v['user_id']}`).innerHTML =  `<div class='col'><small>(${v['limit']})</small></div>`
                         } else {
                             let td = document.getElementById(`value_${v['num']['id']}_${v['user_id']}`);
                             let div = document.createElement('div');
-                            div.className = 'row';
+                            div.className = 'row lims';
                             div.id = `limit_${v['num']['id']}_${v['user_id']}`;
                             div.innerHTML = `<div class='col'><small>(${v['limit']})</small></div>`;
                             td.append(div);
                         }
                         
                     } else {
-                        document.getElementById(`limit_${v['num']['id']}_${v['user_id']}`).remove();
+                        if (document.getElementById(`limit_${v['num']['id']}_${v['user_id']}`)) {
+                            document.getElementById(`limit_${v['num']['id']}_${v['user_id']}`).remove();
+                        }
+                        
                     }
                     limitColor(v['num']['id'], v['user_id'], v['limit'], v['amount']);
                     document.getElementById('mdl_close').click();
@@ -326,13 +381,35 @@ function showCloseEntry() {
 }
 
 
+function showBtnLoading() {
+    document.getElementById('mdl_submit').innerHTML = `<div class='mx-1' id='btnLoading' style='display: block;'>
+    <div class="spinner-border my-auto text-light" role="status">
+    <span class="visually-hidden">Loading...</span>
+    </div>
+ </div>`;
+}
+
+function hideBtnLoading(str) {
+    document.getElementById('mdl_submit').innerHTML = `${str}`;
+}
+
+
 function closeEntry() {
-    showLoading();
+    document.getElementById('mdl_close').click();
+    showBtnLoading();
     fetch('/closeEntry')
     .then(response => response.json())
     .then((data) => {
-        hideLoading();
+        hideBtnLoading('Confirm')
+        if (data.msg === 'error') {
+            showNewNoti('Some error occours! Refresh the page and retry!', false, 'error')
+        }
+        document.getElementById('closeOffCanvas').click();
         console.log(data)
+        if (data.msg === 'Success!') {
+            console.log(data.msg === 'Success!')
+            loadAllData()
+        }
     })
 }
 
@@ -355,6 +432,9 @@ function showAddJackpot() {
     .then(response => response.json())
     .then((data) => {
         hideLoading()
+        if (data.msg === 'error') {
+            showNewNoti('Some error occours! Refresh the page and retry!', false, 'error')
+        }
         console.log(data)
         let select = document.getElementById('inputGroupSelect01')
         for (let i = 0; i < data.arcs.length; i++) {
@@ -374,7 +454,7 @@ function showAddJackpot() {
     document.getElementById('mdl_submit').onclick = function() {
         addJackpot();
     };
-    document.getElementById('mdl_submit').innerHTML = 'Add'
+    document.getElementById('mdl_submit').innerHTML = 'Add';
     document.getElementById('logModalBtn').click();
 }
 
@@ -383,7 +463,7 @@ function addJackpot() {
     const headers = {
         'X-CSRFToken': getCookie('csrftoken'),
     };
-    showLoading();
+    showBtnLoading();
     fetch('/addJp', {
         method: 'POST',
         headers: headers,
@@ -395,8 +475,12 @@ function addJackpot() {
     })
     .then(response => response.json())
     .then((data) => {
-        hideLoading();
+        hideBtnLoading('Add');
+        if (data.msg === 'error') {
+            showNewNoti('Some error occours! Refresh the page and retry!', false, 'error')
+        }
         console.log(data)
     })
+    document.getElementById('mdl_close').click();
 }
 

@@ -1,0 +1,85 @@
+{% extends "twoD/layout.html" %}
+{% load static %}
+
+
+{% block content %}
+<div class="list-group">
+    <a href='{% url 'index' %}' type='button' class='nav-btn-custom no-bdr-top'>Home</a>
+    <a type='button' class='nav-btn-custom ' href='{% url 'history' %}' >Check History</a>
+    <a class="nav-btn-custom" href="{% url 'register' %}">Sign Up</a>
+    <a type='button' class='nav-btn-custom no-bdr-bottom' href='{% url 'logout_view' %}' >Logout</a>
+</div>
+{% endblock %}
+
+{% block body %}
+<script src="{% static 'twoD/setting.js' %}"></script>
+{% if messages  %}
+    {% for message in messages %}
+        <h4 class="text-center {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</h4>
+    {% endfor %}
+{% endif %}
+
+
+
+<button type="button" id='logModalBtn' data-bs-toggle="modal" data-bs-target="#logModal" hidden>
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="logModal" tabindex="-1" aria-labelledby="logModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="mdl_title"></h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id='mdl_close'></button>
+      </div>
+      <div class="modal-body"  id='mdl_body'>
+        
+      </div>
+      <div class="modal-footer" id='mdl_footer'>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id='mdl_close'>Close</button>
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class='loadingDi' id='loadingDiv' style='display: none;'>
+  <div class='position-absolute top-50 start-50 translate-middle'>
+    <div class="spinner-border my-auto text-light" role="status">
+      <span class="visually-hidden">Loading...</span>
+  </div>
+  </div>
+</div>
+
+
+{% for setting in settings %}
+<div class="card mx-auto mb-3" style="max-width: 50%;min-width: 300px">
+    <h5 class="card-title ms-5 mt-3" id='name_{{ setting.id }}'>{{ setting.user.first_name }}</h5>
+    <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+                <div class="input-group mb-3">
+                <span class="input-group-text">Default Limit</span>
+                <input type="number" class="form-control setting_{{ setting.id }}" id="limit_{{ setting.id }}" value='{{ setting.limit }}' data-id='{{ setting.id }}' data-value='{{ setting.limit }}' onkeyup=(activateSaveBtn(event))>
+              </div>
+            </li>
+            <li class="list-group-item">
+                <div class="input-group mb-3">
+                    <span class="input-group-text">Payout Rate</span>
+                    <input type="number" class="form-control  setting_{{ setting.id }}" id="pay_{{ setting.id }}" value='{{ setting.payout_rate }}' data-id='{{ setting.id }}' data-value='{{ setting.payout_rate }}'  onkeyup=(activateSaveBtn(event))>
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="input-group mb-3">
+                    <span class="input-group-text">Commission Rate</span>
+                    <input type="number" class="form-control  setting_{{ setting.id }}" id="com_{{ setting.id }}" value='{{ setting.commission }}' data-id='{{ setting.id }}' data-value='{{ setting.commission }}' onkeyup=(activateSaveBtn(event))>
+                </div>
+            </li>
+        </ul>
+        <button type='button' class="card-link btn btn-primary ms-5" id='{{ setting.id }}' onclick='showSaveSetting(event)' disabled>Save</button>
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}
