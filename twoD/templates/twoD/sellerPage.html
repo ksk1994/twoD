@@ -2,25 +2,41 @@
 {% load static %}
 
 {% block content %}
-<div class="list-group">
-  <button type='button' class='nav-btn-custom no-bdr-top' onclick="showSell()">Sell</button>
-  <button type='button' class='nav-btn-custom' onclick="GetMyLogs()">Check Today Logs</button>
-  <a type='button' class='nav-btn-custom' href='{% url 'history' %}'>Check History Logs</a>
-  <button type='button' class='nav-btn-custom' onclick="GetTotalAcount()">Check Total</button>
-  <a type='button' class='nav-btn-custom no-bdr-bottom' href='{% url 'logout_view' %}' >Logout</a>
+{% if setting %}
+<div class="list-group" style='width: 200px;'>
+  <div class="input-group mb-3">
+    <span class="input-group-text p-0" id="inputGroup-sizing-default">ပုံမှန် ဘရိတ်</span>
+    <input type='number' value="{{ setting.limit }}" id='defaultLimit' readonly class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
+  </div>
+  <div class="input-group mb-3">
+    <span class="input-group-text p-0" id="inputGroup-sizing-default">လျော်ဆ</span>
+    <input type='number' value="{{ setting.payout_rate }}" id='payRate' readonly class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
+  </div>
+  <div class="input-group mb-3">
+    <span class="input-group-text p-0" id="inputGroup-sizing-default">ကော်ဆ</span>
+    <input type='number' value="{{ setting.commission }}" id='commission' readonly class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
+  </div>
   
 </div>
+{% endif %}
+
+<div class="list-group">
+  <button type='button' class='nav-btn-custom no-bdr-top' onclick="showSell()">ရောင်းမယ်</button>
+  <button type='button' class='nav-btn-custom' onclick="GetMyLogs()">ဒီနေ့မှတ်တမ်း</button>
+  <a type='button' class='nav-btn-custom' href='{% url 'history' %}'>အရင် စာရင်း</a>
+  <button type='button' class='nav-btn-custom' onclick="GetTotalAcount()">စုစုပေါင်း</button>
+  <a type='button' class='nav-btn-custom no-bdr-bottom' href='{% url 'logout_view' %}' >အကောင့် ထွက်မယ်</a>
+  
+</div>
+
+
 {% endblock %}
 
 
 {% block body %}
-{% if setting %}
-  <input type='number' value="{{ setting.limit }}" id='defaultLimit' hidden>
-  <input type='number' value="{{ setting.payout_rate }}" id='payRate' hidden>
-  <input type='number' value="{{ setting.commission }}" id='commission' hidden>
-{% endif %}
+
 <script src="{% static 'twoD/sellerpage.js' %}"></script>
-<h2 class="text-center">Welcome {{ user.first_name }} (seller page)</h2>
+<h2 class="text-center">Welcome {{ user.first_name }}</h2>
 <button type="button" id='logModalBtn' data-bs-toggle="modal" data-bs-target="#logModal" hidden>
 </button>
   

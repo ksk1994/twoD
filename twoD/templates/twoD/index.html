@@ -4,14 +4,14 @@
 
 {% block content %}
 <div class="list-group">
-  <button type='button' class='nav-btn-custom no-bdr-top' onclick="showSetLimit()">Add Limit</button>
-  <button type='button' class='nav-btn-custom ' onclick="checkTotal()" >Check Total</button>
-  <button type='button' class='nav-btn-custom ' onclick='showCloseEntry()'>Close Entry</button>
-  <button type='button' class='nav-btn-custom ' onclick='showAddJackpot()'>Add Jackpot</button>
-  <a type='button' class='nav-btn-custom ' href='{% url 'history' %}' >Check History</a>
-  <a class="nav-btn-custom" href="{% url 'register' %}">Sign Up</a>
+  <button type='button' class='nav-btn-custom no-bdr-top' onclick="showSetLimit()">ဘရိတ် ထည့်မယ်</button>
+  <button type='button' class='nav-btn-custom ' onclick="checkTotal()" >စုစုပေါင်း</button>
+  <button type='button' class='nav-btn-custom ' onclick='showCloseEntry()'>အဝင်ပိတ်မယ်</button>
+  <button type='button' class='nav-btn-custom ' onclick='showAddJackpot()'>ပေါက်သီးထည့်မယ်</button>
+  <a type='button' class='nav-btn-custom ' href='{% url 'history' %}' >အရင် စာရင်း</a>
+  <a class="nav-btn-custom" href="{% url 'register' %}">အကောင့်သစ်လျှောက်</a>
   <a class="nav-btn-custom" href="{% url 'setting' %}">Setting</a>
-  <a type='button' class='nav-btn-custom no-bdr-bottom' href='{% url 'logout_view' %}' >Logout</a>
+  <a type='button' class='nav-btn-custom no-bdr-bottom' href='{% url 'logout_view' %}' >အကောင့် ထွက်မယ်</a>
 </div>
 {% endblock %}
 
@@ -37,11 +37,11 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id='mdl_close'></button>
       </div>
       <div class="modal-body"  id='mdl_body'>
-        
+
       </div>
       <div class="modal-footer" id='mdl_footer'>
         <button type="button" id='mdl_close' class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        
+
       </div>
     </div>
   </div>
@@ -81,7 +81,7 @@
         <tr>
           <td class='nums' data-id='{{ num.id }}'>{{ num.num }}</td>
           {% for user in users %}
-          <td id='value_{{ num.id }}_{{ user.id }}'></td>
+          <td class='datas' id='value_{{ num.id }}_{{ user.id }}'><div class='row'><div class='col vals'>0</div></div></td>
           {% endfor %}
         </tr>
       {% endfor %}

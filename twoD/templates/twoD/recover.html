@@ -1,0 +1,37 @@
+{% extends "twoD/layout.html" %}
+{% load static %}
+
+{% block body %}
+<script src="{% static 'twoD/recover.js' %}"></script>
+<div>
+    
+    <form action="{% url 'recover' %}" method="post">
+        {% csrf_token %}
+        <h2 class="text-center mb-3">Password ပြန်ဖော်မယ်</h2>
+        {% if messages  %}
+          {% for message in messages %}
+          <h4 class="text-center {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</h4>
+          {% endfor %}
+
+          {% endif %}
+        <fieldset>
+            <input type="text" name="username" id="username" placeholder="အကောင့်နာမည်" class="form-input">
+            <input type="number" name="randomCode" id="randomCode" placeholder="လျှိုဝှက်နံပါတ်" class="form-input">
+        </fieldset>
+        <fieldset>
+            <input type="password" name="password" id="password" placeholder="Password" class="form-input">
+            <input type="password" name="confirmation" id="confirmation" placeholder="Confirm Password" class="form-input">
+        </fieldset>
+        <div  class="form-btn-div">
+            <input type="submit" value="ပြန်ဖော်မယ်" class="form-btn">
+            
+        </div>
+        <fieldset>
+            <p class="text-center">Password မှတ်မိရင် <a class="mx-1" href="{% url 'login' %}">အကောင့်ဝင်မယ်</a>.</p>
+        </fieldset>
+    </form>
+</div>
+
+
+
+{% endblock %}

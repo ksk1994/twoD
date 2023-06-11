@@ -1,13 +1,13 @@
 {% extends "twoD/layout.html" %}
 {% load static %}
-
+{% load custom_tags %}
 
 {% block content %}
 <div class="list-group">
     <a href='{% url 'index' %}' type='button' class='nav-btn-custom no-bdr-top'>Home</a>
-    <a type='button' class='nav-btn-custom ' href='{% url 'history' %}' >Check History</a>
-    <a class="nav-btn-custom" href="{% url 'register' %}">Sign Up</a>
-    <a type='button' class='nav-btn-custom no-bdr-bottom' href='{% url 'logout_view' %}' >Logout</a>
+    <a type='button' class='nav-btn-custom ' href='{% url 'history' %}' >အရင် စာရင်း</a>
+    <a class="nav-btn-custom" href="{% url 'register' %}">အကောင့်သစ်လျှောက်</a>
+    <a type='button' class='nav-btn-custom no-bdr-bottom' href='{% url 'logout_view' %}' >အကောင့် ထွက်မယ်</a>
 </div>
 {% endblock %}
 
@@ -55,24 +55,26 @@
 
 {% for setting in settings %}
 <div class="card mx-auto mb-3" style="max-width: 50%;min-width: 300px">
-    <h5 class="card-title ms-5 mt-3" id='name_{{ setting.id }}'>{{ setting.user.first_name }}</h5>
+    <h5 class="card-title ms-5 mt-3" id='name_{{ setting.id }}'>{{ setting.user.first_name }}<span  class='ms-2'>(<a href="tel:{{ setting.user.phone|format_phone_number }}">{{ setting.user.phone|format_phone }}</a>)</span></h5>
+    <h6 class="card-title ms-5 mt-3">လျှိုဝှက်နံပါတ် -<b class='ms-2' id='secrectCode'>{{ setting.user.random_field }}</b></h6>
     <div class="card-body">
+      
         <ul class="list-group list-group-flush">
             <li class="list-group-item">
                 <div class="input-group mb-3">
-                <span class="input-group-text">Default Limit</span>
+                <span class="input-group-text">ပုံမှန် ဘရိတ်</span>
                 <input type="number" class="form-control setting_{{ setting.id }}" id="limit_{{ setting.id }}" value='{{ setting.limit }}' data-id='{{ setting.id }}' data-value='{{ setting.limit }}' onkeyup=(activateSaveBtn(event))>
               </div>
             </li>
             <li class="list-group-item">
                 <div class="input-group mb-3">
-                    <span class="input-group-text">Payout Rate</span>
+                    <span class="input-group-text">လျော်ဆ</span>
                     <input type="number" class="form-control  setting_{{ setting.id }}" id="pay_{{ setting.id }}" value='{{ setting.payout_rate }}' data-id='{{ setting.id }}' data-value='{{ setting.payout_rate }}'  onkeyup=(activateSaveBtn(event))>
                 </div>
             </li>
             <li class="list-group-item">
                 <div class="input-group mb-3">
-                    <span class="input-group-text">Commission Rate</span>
+                    <span class="input-group-text">ကော်ဆ</span>
                     <input type="number" class="form-control  setting_{{ setting.id }}" id="com_{{ setting.id }}" value='{{ setting.commission }}' data-id='{{ setting.id }}' data-value='{{ setting.commission }}' onkeyup=(activateSaveBtn(event))>
                 </div>
             </li>

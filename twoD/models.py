@@ -1,7 +1,17 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
+import random
 
+
+def generate_random_four_digits():
+    while True:
+        # Generate a random four-digit integer
+        random_number = random.randint(1000, 9999)
+        
+        # Check if the generated number is unique
+        if not User.objects.filter(random_field=random_number).exists():
+            return random_number
 
 # Create your models here.
 
@@ -9,7 +19,8 @@ from django.utils import timezone
 class User(AbstractUser):
     phone = models.IntegerField(blank=True, null=True)
     is_owner = models.BooleanField(default=False)
-
+    random_field = models.IntegerField(default=generate_random_four_digits)
+    
     def __str__(self):
         return f"{self.id}: ({self.username})"
     

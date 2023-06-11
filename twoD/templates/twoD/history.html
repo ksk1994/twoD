@@ -7,10 +7,10 @@
   <a href='{% url 'index' %}' type='button' class='nav-btn-custom no-bdr-top'>Home</a>
   {% if user.is_owner %}
   <a type='button' class='nav-btn-custom ' href='{% url 'setting' %}' >Setting</a>
-  <a class="nav-btn-custom" href="{% url 'register' %}">Sign Up</a>
+  <a class="nav-btn-custom" href="{% url 'register' %}">အကောင့်သစ်လျှောက်</a>
   {% endif %}
   
-  <a type='button' class='nav-btn-custom no-bdr-bottom' href='{% url 'logout_view' %}' >Logout</a>
+  <a type='button' class='nav-btn-custom no-bdr-bottom' href='{% url 'logout_view' %}' >အကောင့် ထွက်မယ်</a>
 </div>
 {% endblock %}
               
@@ -37,29 +37,29 @@
         
         {% if a.arc.jp %}
         <div class='row'>
-          <div class='col col-auto'>Jackpot Number- </div><div class='col col-auto'><b class='bg-success rounded p-1'>{{ a.arc.jp }}</b></div>
+          <div class='col col-auto'>ပေါက်သီး- </div><div class='col col-auto'><b class='bg-success rounded p-1'>{{ a.arc.jp }}</b></div>
         </div>
         {% endif %}
         <div class='row'>
-          <div class='col col-auto'>TOTAL- </div><div class='col col-auto'><b>{{ a.total|intcomma }}</b></div>
+          <div class='col col-auto'>စုစုပေါင်း- </div><div class='col col-auto'><b>{{ a.total|intcomma }}</b></div>
         </div>
         {% if a.arc.jp %}
         <div class='row'>
-          <div class='col col-auto'>Pay Out- </div><div class='col col-auto'><b>{{ a.loss|intcomma }}</b></div>
+          <div class='col col-auto'>လျော်ကြေး- </div><div class='col col-auto'><b>{{ a.loss|intcomma }}</b></div>
         </div>
         {% endif %}
         {% if a.commission != 0 %}
         <div class='row'>
-          <div class='col col-auto'>Commission- </div><div class='col col-auto'><b>{{ a.commission|intcomma }}</b></div>
+          <div class='col col-auto'>ကော်ကြေး- </div><div class='col col-auto'><b>{{ a.commission|intcomma }}</b></div>
         </div>
         {% endif %}
 
         {% if a.net != 0 %}
         <div class='row'>
         {% if a.net < 0 %}
-          <div class='col col-auto'><p>{{ a.arc.user.first_name|upper }} get <b class='p-1 border-1 rounded bg-info'>{{ a.net|abs_value|intcomma }}</b></p></div>
+          <div class='col col-auto'><p>{{ a.arc.user.first_name|upper }} ကို <b class='p-1 border-1 rounded bg-warning-subtle'>{{ a.net|abs_value|intcomma }}</b> လျော်ရမယ်</p></div>
         {% elif a.net > 0 %}
-          <div class='col col-auto'><p>{{ a.arc.user.first_name|upper }} pay <b class='p-1 border-1 rounded bg-info'>{{ a.net|abs_value|intcomma }}</b></p></div>
+          <div class='col col-auto'><p>{{ a.arc.user.first_name|upper }} ဆီက <b class='p-1 border-1 rounded bg-success-subtle'>{{ a.net|abs_value|intcomma }}</b> ရမယ်</p></div>
         {% endif %}
         </div>
         {% endif %}

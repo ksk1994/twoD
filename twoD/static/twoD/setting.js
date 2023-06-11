@@ -4,7 +4,7 @@ function showSaveSetting(event) {
     document.getElementById('mdl_title').innerHTML = 'Confirm Save';
     let body = document.getElementById('mdl_body');
 
-    body.innerHTML = `Are You sure you want to save setting for ${name}?`
+    body.innerHTML = `${name} အတွက် အခု setting ကို save မှာသေချာပြီလား?`
     
     if (!document.getElementById('mdl_submit')) {
         let btn = document.createElement('button');
@@ -19,7 +19,7 @@ function showSaveSetting(event) {
     document.getElementById('mdl_submit').onclick = function() {
         saveSetting(id);
     };
-    document.getElementById('mdl_submit').innerHTML = 'Confirm'
+    document.getElementById('mdl_submit').innerHTML = 'သေချာတယ်'
     document.getElementById('logModalBtn').click();
 }
 
@@ -50,18 +50,18 @@ function saveSetting(id) {
         .then((data) => {
             hideLoading();
             if (data.msg === 'error') {
-                showNewNoti('Some error occours! Reload the page!', false, 'error')
+                showNewNoti('Error တက်သွားလို့ Refresh လုပ်ပြီး နောက်တခေါက်ထပ် လုပ်ကြည့်ပါ! Retry!', false, 'error')
             } else {
                 console.log(data)
                 document.getElementById(`limit_${data.setting['id']}`).value = data.setting['limit']
                 document.getElementById(`pay_${data.setting['id']}`).value = parseFloat(data.setting['payRate'])
                 document.getElementById(`com_${data.setting['id']}`).value = parseFloat(data.setting['commission'])
-                showNewNoti('Successfully Saved!', true, 'success')
+                showNewNoti('အောင်မြင်စွာ saveပြီးပါပြီ။', true, 'success')
             }
             
         })
     } else {
-        showNewNoti('Invalid Input', false, 'error')
+        showNewNoti('ဖြည့်တဲ့ တန်ဖိုးမှားနေပါတယ်| သေသေချာချာ စစ်ကြည့်ပါ', false, 'error')
     }
     
 }

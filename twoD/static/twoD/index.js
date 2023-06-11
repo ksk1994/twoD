@@ -15,7 +15,7 @@ function showNewNoti(str, ok, id) {
     } else {
         div.className = 'toast align-items-center text-bg-danger border-0'
     }
-    
+
     div.role = 'alert';
     div.ariaLive = 'assertive';
     div.ariaAtomic = 'true';
@@ -46,17 +46,17 @@ function loadAllData() {
     .then((data) => {
         hideLoading();
         if (data.msg === 'error') {
-            showNewNoti('Some error occours! Reload the page!', false, 'error')
+            showNewNoti('Error တက်သွားလို့ Refresh လုပ်ပါ!', false, 'error')
         }
-        
+
         let totalDiv = document.getElementById('hide_total');
-        
+
         for (let y = 0; y < data.data.length; y++) {
             let user = data.data[y]['user'];
             let setting = data.data[y]['setting']
             let total = 0
             for (let x = 0; x < data.data[y]['vals'].length; x++) {
-                
+
                 let val = data.data[y]['vals'][x];
                 let td = document.getElementById(`value_${val['num']['id']}_${user['id']}`);
                 if (val['limit'] === setting['limit']) {
@@ -65,7 +65,7 @@ function loadAllData() {
                     td.innerHTML = `<div class='row'><div class='col vals'>${val['amount']}</div></div><div class='row lims' id='limit_${val['num']['id']}_${user['id']}'><div class='col'><small>(${val['limit']})</small></div></div>`;
                 }
                 total += val['amount']
-                
+
                 limitColor(val['num']['id'], user['id'], val['limit'], val['amount']);
             }
             let hideInput = document.createElement('input');
@@ -74,8 +74,8 @@ function loadAllData() {
             hideInput.dataset.name = `${user['name']}`;
             hideInput.dataset.value = `${total}`;
             totalDiv.append(hideInput);
-            
-            
+
+
         }
     })
 }
@@ -105,7 +105,7 @@ function oldloadOwnerData() {
         console.log(data)
 
         var dataDiv = document.getElementById('accordionExample');
-        
+
         for (let y = 0; y < data.data.length; y++) {
             let d = data.data[y]
             let tablediv = document.createElement('div');
@@ -120,7 +120,7 @@ function oldloadOwnerData() {
             <div id="collapse_${d['user']['username']}" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
             <div class="accordion-body">
             <table class="table table-striped">
-            
+
                 <thead>
                     <tr>
                     <th scope="col">No</th>
@@ -137,7 +137,7 @@ function oldloadOwnerData() {
             dataDiv.append(tablediv);
             let tbody = document.getElementById(`table_${d['user']['username']}`);
             let total = 0;
-            
+
             for (let i = 0; i < d['vals'].length; i++) {
                 let val = d['vals'][i];
                 if (val['limit'] === 99999999999) {
@@ -161,7 +161,7 @@ function oldloadOwnerData() {
 
 
 function showSetLimit() {
-    document.getElementById('mdl_title').innerHTML = 'Set Limit';
+    document.getElementById('mdl_title').innerHTML = 'ဘရိတ် ထည့်မယ်';
     let body = document.getElementById('mdl_body');
     body.innerHTML = '';
     let div = document.createElement('div');
@@ -169,17 +169,17 @@ function showSetLimit() {
     let nums = getNums();
     div.innerHTML = `
     <div class="input-group mb-3">
-    
+
     <select class="form-select" id="num_select">
-        <option selected>Number</option>
-        <option value="all_nums">All Number</option>
-        
+        <option selected>ဂဏန်းရွေးရန်</option>
+        <option value="all_nums">ဂဏန်းအားလုံး</option>
+
     </select>
-    
+
     <select class="form-select" id="user_select">
-        <option selected>User</option>
-        <option value="all_users">All Users</option>
-        
+        <option selected>ကော်သမားရွေးရန်</option>
+        <option value="all_users">ကော်သမားအားလုံး</option>
+
     </select>
     <input type="text" class="form-control" id='limit_value'>
     </div>`
@@ -205,28 +205,37 @@ function showSetLimit() {
         btn.id = 'mdl_submit'
         btn.className = 'btn btn-primary';
         btn.type = 'button';
-        
+
         document.getElementById('mdl_footer').append(btn);
     }
     document.getElementById('mdl_submit').onclick = function() {
         setLimit();
     };
     document.getElementById('mdl_submit').style.width = '160px';
-    document.getElementById('mdl_submit').innerHTML = 'Set Limit';
-    
+    document.getElementById('mdl_submit').innerHTML = 'ထည့်မယ်';
+
     document.getElementById('logModalBtn').click();
 
 
 }
 
 function setLimit() {
-    let user = document.getElementById('user_select').value;
-    let num = document.getElementById('num_select').value;
+    let user = document.getElementById('user_select');
+    let num = document.getElementById('num_select');
+    const selectedUserIndex = user.selectedIndex;
+    const selectedUserOption = user.options[selectedUserIndex];
+    const u = selectedUserOption.innerHTML;
+
+    const selectedNumIndex = num.selectedIndex;
+    const selectedNumOption = num.options[selectedNumIndex];
+    const n = selectedNumOption.innerHTML;
+    
     let limit_value = document.getElementById('limit_value').value;
     if (user === 'User' || num === 'Number' ||  limit_value=== "") {
-        alert('Fill the form completely!')
+        showNewNoti('ဖြည့်တဲ့ တန်ဖိုးမှားနေပါတယ်| သေသေချာချာ စစ်ကြည့်ပါ', false, 'error')
+        
     } else if (parseInt(limit_value) < 0) {
-        alert('Invalid Input!')
+        showNewNoti('ဖြည့်တဲ့ တန်ဖိုးမှားနေပါတယ်| သေသေချာချာ စစ်ကြည့်ပါ', false, 'error')
     } else {
         const headers = {
             'X-CSRFToken': getCookie('csrftoken'),
@@ -236,20 +245,24 @@ function setLimit() {
             method: 'PUT',
             headers: headers,
             body: JSON.stringify({
-                user: user,
-                num: num,
+                user: user.value,
+                num: num.value,
                 limit: limit_value,
             })
         })
         .then(response => response.json())
         .then((data) => {
-            hideBtnLoading('Set Limit')
+            hideBtnLoading('ထည့်မယ်')
             if (data.msg === 'error') {
-                showNewNoti('Some error occours! Retry!', false, 'error')
+                showNewNoti('Error တက်သွားလို့  နောက်တခေါက်ထပ် လုပ်ကြည့်ပါ! Retry!', false, 'error')
             }
-            
+
             console.log(data)
             if (data.vals) {
+                document.getElementById('mdl_close').click();
+                    showNewNoti(`<b class='bg-info rounded p-1'>${u}</b>
+                        <b class='bg-warning rounded p-1'>${n}</b> Limit is set to ${limit_value} successfully!`, true, 'success')
+
                 for (let i = 0; i < data.vals.length; i++) {
                     let v = data.vals[i];
                     let defaultLimit = parseInt(document.getElementById(`defaultLimit_${v['user_id']}`).value);
@@ -265,20 +278,20 @@ function setLimit() {
                             div.innerHTML = `<div class='col'><small>(${v['limit']})</small></div>`;
                             td.append(div);
                         }
-                        
+
                     } else {
                         if (document.getElementById(`limit_${v['num']['id']}_${v['user_id']}`)) {
                             document.getElementById(`limit_${v['num']['id']}_${v['user_id']}`).remove();
                         }
-                        
+
                     }
                     limitColor(v['num']['id'], v['user_id'], v['limit'], v['amount']);
-                    document.getElementById('mdl_close').click();
+                    
                 }
             }
         })
     }
-    
+
 }
 
 function showLoading() {
@@ -317,7 +330,7 @@ function getNums() {
 
 function getCookie(name) {
     let cookieValue = null;
-    
+
     if (document.cookie && document.cookie !== '') {
         const cookies = document.cookie.split(';');
         for (let i = 0; i < cookies.length; i++) {
@@ -337,7 +350,7 @@ function getCookie(name) {
 
 function checkTotal() {
     let totals = Array.from(document.querySelectorAll('.hiddenTotal'));
-    document.getElementById('mdl_title').innerHTML = 'Total';
+    document.getElementById('mdl_title').innerHTML = 'စုစုပေါင်းစာရင်း';
     let body = document.getElementById('mdl_body');
     body.innerHTML = '';
     if (document.getElementById('mdl_submit')) {
@@ -359,24 +372,21 @@ function checkTotal() {
 
 
 function showCloseEntry() {
-    document.getElementById('mdl_title').innerHTML = 'Confirm Close';
+    document.getElementById('mdl_title').innerHTML = 'စရင်းပိတ်သဘောတူပါ';
     let body = document.getElementById('mdl_body');
-    body.innerHTML = 'Are You sure you want to close entries?'
-    
+    body.innerHTML = 'စရင်းပိတ်မှာသေချာလား?'
+
     if (!document.getElementById('mdl_submit')) {
         let btn = document.createElement('button');
         btn.id = 'mdl_submit'
         btn.className = 'btn btn-primary';
         btn.type = 'button';
-        
-
-        
         document.getElementById('mdl_footer').append(btn);
     }
     document.getElementById('mdl_submit').onclick = function() {
         closeEntry();
     };
-    document.getElementById('mdl_submit').innerHTML = 'Confirm'
+    document.getElementById('mdl_submit').innerHTML = 'သေချာတယ်'
     document.getElementById('logModalBtn').click();
 }
 
@@ -400,31 +410,44 @@ function closeEntry() {
     fetch('/closeEntry')
     .then(response => response.json())
     .then((data) => {
-        hideBtnLoading('Confirm')
+        hideBtnLoading('သေချာတယ်')
         if (data.msg === 'error') {
-            showNewNoti('Some error occours! Refresh the page and retry!', false, 'error')
+            showNewNoti('Error တက်သွားလို့ Refresh လုပ်ပြီး နောက်တခေါက်ထပ် လုပ်ကြည့်ပါ! Retry!', false, 'error')
         }
         document.getElementById('closeOffCanvas').click();
         console.log(data)
         if (data.msg === 'Success!') {
-            console.log(data.msg === 'Success!')
-            loadAllData()
+            let vals = Array.from(document.querySelectorAll('.vals'));
+            vals.forEach(v => {
+                console.log(v)
+                v.innerHTML = 0;
+
+            })
+            let lims = Array.from(document.querySelectorAll('.lims'));
+            lims.forEach(l => {
+                console.log(l)
+                l.remove();
+
+            })
+
+            showNewNoti('စရင်းအားလုံးပိတ်ပြီးပါပြီ။ အရင်နေ့စာရင်းထဲမှာ saveထားပါတယ်', true, 'success')
+
         }
     })
 }
 
 function showAddJackpot() {
-    document.getElementById('mdl_title').innerHTML = 'Add Jackpot';
+    document.getElementById('mdl_title').innerHTML = 'ပေါက်သီးထည့်';
     let body = document.getElementById('mdl_body');
     body.innerHTML = `
     <div class="input-group mb-3">
-    <label class="input-group-text" for="inputGroupSelect01">Options</label>
+    <label class="input-group-text" for="inputGroupSelect01">ရွေးချယ်ရန်</label>
     <select class="form-select" id="inputGroupSelect01">
-        
+
     </select>
     </div>
     <div class="input-group mb-3">
-    <span class="input-group-text" id="inputGroup-sizing-default">Add Winning Number</span>
+    <span class="input-group-text" id="inputGroup-sizing-default">ပေါက်သီး</span>
     <input type="text" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default" id='jackpot'>
   </div>`
     showLoading()
@@ -433,7 +456,7 @@ function showAddJackpot() {
     .then((data) => {
         hideLoading()
         if (data.msg === 'error') {
-            showNewNoti('Some error occours! Refresh the page and retry!', false, 'error')
+            showNewNoti('Error တက်သွားလို့ Refresh လုပ်ပြီး နောက်တခေါက်ထပ် လုပ်ကြည့်ပါ! Retry!', false, 'error')
         }
         console.log(data)
         let select = document.getElementById('inputGroupSelect01')
@@ -454,7 +477,7 @@ function showAddJackpot() {
     document.getElementById('mdl_submit').onclick = function() {
         addJackpot();
     };
-    document.getElementById('mdl_submit').innerHTML = 'Add';
+    document.getElementById('mdl_submit').innerHTML = 'ထည့်မယ်';
     document.getElementById('logModalBtn').click();
 }
 
@@ -475,9 +498,11 @@ function addJackpot() {
     })
     .then(response => response.json())
     .then((data) => {
-        hideBtnLoading('Add');
+        hideBtnLoading('ထည့်မယ်');
         if (data.msg === 'error') {
-            showNewNoti('Some error occours! Refresh the page and retry!', false, 'error')
+            showNewNoti('Error တက်သွားလို့ Refresh လုပ်ပြီး နောက်တခေါက်ထပ် လုပ်ကြည့်ပါ! Retry!', false, 'error')
+        } else if (data.msg === 'success') {
+            showNewNoti('ပေါက်သီးထည့်တာ အောင်မြင်ပါတယ်', true, 'success')
         }
         console.log(data)
     })

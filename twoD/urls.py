@@ -8,7 +8,7 @@ urlpatterns = [
     path('register', views.register, name='register'),
     path('history', views.history, name='history'),
     path('setting', views.setting, name='setting'),
-
+    path('recover', views.recover, name='recover'),
 
     #api path
     path('add_value', views.add_value, name="add_value"),

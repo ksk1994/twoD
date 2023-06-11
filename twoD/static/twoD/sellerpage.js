@@ -11,7 +11,7 @@ function loadData() {
     .then((data) => {
         hideLoading();
         if (data.msg === 'error') {
-            showNewNoti('Some error occours! Refresh the page!', false, 'error')
+            showNewNoti('Error တက်သွားလို့ Refresh လုပ်ပါ!', false, 'error')
         }
         console.log(data)
         let defaultLimit = parseInt(document.getElementById('defaultLimit').value);
@@ -68,7 +68,7 @@ function addValue(event) {
         
         fetchValue(jsonData);
     } else {
-        console.log('Limit exceeded')
+        showNewNoti('ဘရိတ်ကျော်နေတယ်။', false, 'error')
     }
 }
 
@@ -94,22 +94,25 @@ function fetchValue(jsonData) {
             hideBtnLoading(id, `<i class="bi bi-plus-lg"></i>`);
         })
         if (data.msg === 'error') {
-            showNewNoti('Some error occours! Refresh the page!', false, 'error')
+            showNewNoti('Error တက်သွားလို့ Refresh လုပ်ပါ!', false, 'error')
         }
         console.log(data)
         for (let i = 0; i < data.errors.length; i++) {
             let error = data.errors[i];
             document.getElementById(`limit_${error['num']['id']}`).value = error['limit'];
             document.getElementById(`limit_${error['num']['id']}`).innerHTML = error['limit'];
+            if (parseInt(document.getElementById('defaultLimit').value) != error['limit']) {
+                document.getElementById(`limit_${error['num']['id']}`).hidden = false;
+            }
             document.getElementById(`value_${error['num']['id']}`).value = '';
-            showNewNoti(`<b class='bg-info rounded p-1'>${error['num']['num']}</b> limit is reached.`, false, error['num']['id'])
+            showNewNoti(`<b class='bg-info rounded p-1'>${error['num']['num']}</b> limit <b class='bg-warning rounded p-1'>${error['limit']}</b> is reached.`, false, error['num']['id'])
         }
         for (let i = 0; i < data.vals.length; i++) {
             let val = data.vals[i];
             document.getElementById(`original_value_${val['num']['id']}`).innerHTML = `${val['amount']}`;
             limitCheck(val['limit'], val['amount'], val['num']['id'])
             document.getElementById(`value_${val['num']['id']}`).value = '';
-            showNewNoti(`<b class='bg-info rounded p-1'>${val['num']['num']}</b> ${jsonData['value']} is accepted.`, true, val['num']['id'])
+            showNewNoti(`<b class='bg-info rounded p-1'>${val['num']['num']}</b> ${jsonData['value']} ကို ဒိုင်မှ လက်ခံပါတယ်.`, true, val['num']['id'])
         }
     })
 }
@@ -121,10 +124,10 @@ function GetMyLogs() {
     .then((data) => {
         hideLoading();
         if (data.msg === 'error') {
-            showNewNoti('Some error occours! Refresh the page!', false, 'error')
+            showNewNoti('Error တက်သွားလို့ Refresh လုပ်ပါ!', false, 'error')
         } else {
             console.log(data)
-            document.getElementById('logModalLabel').innerHTML = 'My Logs';
+            document.getElementById('logModalLabel').innerHTML = 'ဒီနေ့မှတ်တမ်း';
             let logArea = document.getElementById('logMdlBody');
             logArea.innerHTML = ''
             for(let i = 0; i < data.logs.length; i++) {
@@ -179,14 +182,14 @@ function GetTotalAcount() {
         hideLoading();
         console.log(data)
         if (data.msg === 'error') {
-            showNewNoti('Some error occours! Refresh the page!', false, 'error')
+            showNewNoti('Error တက်သွားလို့ Refresh လုပ်ပါ!', false, 'error')
         }
         if (data.vals) {
-            document.getElementById('logModalLabel').innerHTML = 'Total Amounts';
+            document.getElementById('logModalLabel').innerHTML = 'စုစုပေါင်း စာရင်း';
             document.getElementById('logMdlBody').innerHTML = `<table class="table table-striped" id='acc_table'>
             <thead>
                 <tr>
-                    <th class='text-start' scope="col">Number</th>
+                    <th class='text-start' scope="col">ဂဏန်း</th>
                     <th class='text-center' scope="col">Amount</th>
                 </tr>
             </thead>
@@ -210,11 +213,11 @@ function GetTotalAcount() {
             tfoot.className = 'bg-primary-subtle';
             tfoot.innerHTML = `
             <tr>
-            <td class='text-center'><b>TOTAL</b></td>
+            <td class='text-center'><b>စုစုပေါင်း</b></td>
             <td class='text-center'><b>${total}</b></td>
             </tr>
             <tr>
-            <td class='text-center'><b>COMMISSION</b><small>(*${comRate})</small></td>
+            <td class='text-center'><b>ကော်ကြေး</b><small>(*${comRate})</small></td>
             <td class='text-center'><b>${commission}</b></td>
             </tr>`
             document.getElementById('acc_table').append(tfoot);
@@ -226,7 +229,7 @@ function GetTotalAcount() {
 
 
 function showSell() {
-    document.getElementById('logModalLabel').innerHTML = 'My Logs';
+    document.getElementById('logModalLabel').innerHTML = 'ရောင်းမယ်';
     let logArea = document.getElementById('logMdlBody');
     logArea.innerHTML = `
     
@@ -238,13 +241,13 @@ function showSell() {
         </label>
     </div>
     <select class="form-select" id="numSelect" onChange='checkRable(event)'>
-        <option selected>NUM.</option>
+        <option selected>ဂဏန်း</option>
         
     </select>
     <input type="number" id='sellValue' class="form-control" aria-label="Text input with checkbox">
     </div>
     <div class='text-end' style='width: 100%;'>
-    <button class='btn btn-primary' type='button' id='mdlBtn' onclick='fetchSell()'>Sell</button>
+    <button class='btn btn-primary' type='button' id='mdlBtn' onclick='fetchSell()'>ရောင်းမယ်</button>
     </div>`
     let nums = getNums();
     let numOptions = document.getElementById('numSelect');
@@ -300,7 +303,7 @@ function fetchSell() {
         let no = document.getElementById(`num_${num}`).innerHTML;
         console.log(limit, target, limit < target)
         if (limit < target) {
-            showNewNoti(`<b class='bg-info rounded p-1'>${no}</b> limit is exceeded. And ${value} is denied!`, false, num)
+            showNewNoti(`<b class='bg-info rounded p-1'>${no}</b> ဘရိတ်ကျော်နေတယ်။ ဒိုင်မှ ${value} ကို လက်မခံပါ!`, false, num)
         } else {
             okNums.push(num);
         };
@@ -315,7 +318,7 @@ function fetchSell() {
         };
         showBtnLoading('mdlBtn');
         fetchValue(jsonData);
-        hideBtnLoading('mdlBtn', 'Sell');
+        hideBtnLoading('mdlBtn', 'ရောင်းမယ်');
         document.getElementById('mdl_close').click()
         document.getElementById('closeOffCanvas').click()
     }
@@ -365,7 +368,7 @@ function removeLog(id) {
     .then((data) => {
         hideBtnLoading(`confirm_${id}`, `<i class="bi bi-check-lg"></i>`);
         if (data.msg === 'error') {
-            showNewNoti('Some error occours! Refresh the page and try again!', false, 'error')
+            showNewNoti('Error တက်သွားလို့ Refresh လုပ်ပြီး နောက်တခေါက်ထပ် လုပ်ကြည့်ပါ!', false, 'error')
         }
         console.log(data)
         if(data.val) {
@@ -374,6 +377,7 @@ function removeLog(id) {
             document.getElementById(`log_${id}`).style.animationPlayState = 'running';
             document.getElementById(`log_${id}`).addEventListener('animationend', function() {
                 document.getElementById(`log_${id}`).remove();
+                showNewNoti('မှတ်တမ်းကို ဖျက်ပြီးပါပြီ!', true, id)
             })
         }
         
@@ -386,7 +390,8 @@ function checkLimit(id, value) {
   
     if (limit < target) {
         document.getElementById(`value_${id}`).value = '';
-        showNewNoti('Limit Exceed!', false, id)
+        let num = document.getElementById(`num_${id}`);
+        showNewNoti(`<b class='bg-info rounded p-1'>${num}</b> limit <b class='bg-warning rounded p-1'>${limit}</b> ဘရိတ် တန်ဖိုးရောက်နေပါပြီ`, false, id)
         return false
     } else {
         return true
@@ -398,7 +403,7 @@ function checkValue(id, value) {
         return true
     } else {
         document.getElementById(`value_${id}`).value = '';
-        showNewNoti('Invalid Input', false, id);
+        showNewNoti('ဖြည့်တဲ့ တန်ဖိုးမှားနေပါတယ်| သေသေချာချာ စစ်ကြည့်ပါ', false, id);
         return false;
     }
 }
@@ -437,9 +442,7 @@ function hideLoading() {
 
 function showNewNoti(str, ok, id) {
     console.log(id)
-    if (document.getElementById(`noti_${id}`)) {
-        document.getElementById(`noti_${id}`).remove();
-    }
+    
     var div = document.createElement("div");
     div.id = `noti_${id}`
     if (ok) {
@@ -465,13 +468,14 @@ function showNewNoti(str, ok, id) {
     const toast = new bootstrap.Toast(toastLiveExample)
     toast.show()
     setInterval(function() {
-        document.getElementById(`close_${id}`).click()
+        if (document.getElementById(`noti_${id}`)) {
+            document.getElementById(`noti_${id}`).remove();
+        }
     }, 5000);
 }
 
 function showBtnLoading(id) {
     document.getElementById(`${id}`).disabled = true;
-    console.log('loading')
     document.getElementById(`${id}`).innerHTML = `<div class='m-0 p-0' id='btnLoading' style='width: 100%; height: 100%; display: block;'>
     <div class="spinner-border my-auto text-warning" role="status">
     <span class="visually-hidden">Loading...</span>
@@ -480,7 +484,6 @@ function showBtnLoading(id) {
 }
 
 function hideBtnLoading(id, str) {
-    console.log('loading comp;eted')
     document.getElementById(`${id}`).disabled = false;
     document.getElementById(`${id}`).innerHTML = `${str}`;
 }

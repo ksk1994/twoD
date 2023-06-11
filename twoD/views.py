@@ -104,6 +104,32 @@ def register(request):
         return render(request, 'twoD/register.html')
         
 
+def recover(request):
+    if request.method == 'POST':
+        username = request.POST['username'].strip()
+        password = request.POST['password']
+        confirmation = request.POST['confirmation']
+        code = int(request.POST['randomCode'].strip())
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            messages.error(request, 'အကောင့်နာမည် မှားနေပါတယ်!')
+            return redirect('recover')
+        
+        if code != user.random_field:
+            messages.error(request, 'လျှိုဝှက်နံပါတ် မှားနေပါတယ်!')
+            return redirect('recover')
+        if password != confirmation:
+            messages.error(request, 'Password နှစ်ခုမတူပါဘူ!')
+            return redirect('recover')
+        user.set_password(password)
+        user.save()
+        dj_login(request, user)
+        messages.success(request, 'Successfully recovered!')
+        return redirect('index')
+    else:
+        return render(request, 'twoD/recover.html')
+
 def logout_view(request):
     auth_logout(request)
     return redirect('index')
@@ -136,15 +162,12 @@ def closeEntry(request):
             comm = setting.commission
         #query all values
         values = Value.objects.filter(Q(user=user) & (Q(amount__gt=0) | ~Q(limit=limit)))
-        print(values)
         if values.exists():
             archive = Archive(user=user, ampm=am_pm, payout_rate=payRate, commission=comm)
             archive.save()
-            print(archive)
 
             archive_logs = [ArchiveLog(num=v.num, value=v.amount, limit=v.limit) for v in values if v.amount != 0]
             ArchiveLog.objects.bulk_create(archive_logs)
-            print(archive_logs)
             archive.archiveLog.set(archive_logs)
             archive.save()
 
@@ -395,7 +418,6 @@ def addJp(request):
 
         return JsonResponse({
             'msg': 'success',
-            'arcs': [a.serialize() for a in arcs]
         }, status=201)
     else:
         return JsonResponse({'msg': 'error'}, status=401)
