@@ -9,11 +9,11 @@
   <a type='button' class='nav-btn-custom ' href='{% url 'setting' %}' >Setting</a>
   <a class="nav-btn-custom" href="{% url 'register' %}">အကောင့်သစ်လျှောက်</a>
   {% endif %}
-  
+
   <a type='button' class='nav-btn-custom no-bdr-bottom' href='{% url 'logout_view' %}' >အကောင့် ထွက်မယ်</a>
 </div>
 {% endblock %}
-              
+
 {% block body %}
 <h3 class="text-center">History </h3>
 {% if messages  %}
@@ -23,18 +23,30 @@
 {% endif %}
 
 <script src=""></script>
+{% for arc in arcs %}
+<h4 class='ms-4 mb-3'>
+  {{ arc.date|naturalday }}
+  {% if arc.net %}
+  {% if request.user.is_owner %}
+  {% if arc.net < 0 %}<small class='ms-3 bg-danger rounded p-2'>{{ arc.net|abs_value|intcomma }}</small>{% else %}<small class='ms-3 bg-success rounded p-2'>{{ arc.net|abs_value|intcomma }}</small>{% endif %}
+  {% else %}
+  {% if arc.net < 0 %}<small class='ms-3 bg-success rounded p-2'>{{ arc.net|abs_value|intcomma }}</small>{% else %}<small class='ms-3 bg-danger rounded p-2'>{{ arc.net|abs_value|intcomma }}</small>{% endif %}
+  {% endif %}
+  {% endif %}
+</h4>
+
 <div class="accordion mb-3" id="accordionExample">
-{% for a in arcs %}
+{% for a in arc.arList %}
 <div class="accordion-item">
     <h2 class="accordion-header">
       <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_{{ a.arc.id }}" aria-expanded="true" aria-controls="collapse_{{ a.arc.id }}">
         <p><b>{{ a.arc.user.first_name|upper }} </b>| <span> {{ a.arc.date|naturalday }}({{ a.arc.ampm }})</p>
-        
+
       </button>
     </h2>
     <div id="collapse_{{ a.arc.id }}" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
       <div class="accordion-body">
-        
+
         {% if a.arc.jp %}
         <div class='row'>
           <div class='col col-auto'>ပေါက်သီး- </div><div class='col col-auto'><b class='bg-success rounded p-1'>{{ a.arc.jp }}</b></div>
@@ -50,19 +62,31 @@
         {% endif %}
         {% if a.commission != 0 %}
         <div class='row'>
-          <div class='col col-auto'>ကော်ကြေး- </div><div class='col col-auto'><b>{{ a.commission|intcomma }}</b></div>
+          <div class='col col-auto'>ကော်ကြေး- </div><div class='col col-auto'><b>{{ a.commission|floatformat|intcomma }}</b></div>
         </div>
         {% endif %}
 
         {% if a.net != 0 %}
         <div class='row'>
-        {% if a.net < 0 %}
-          <div class='col col-auto'><p>{{ a.arc.user.first_name|upper }} ကို <b class='p-1 border-1 rounded bg-warning-subtle'>{{ a.net|abs_value|intcomma }}</b> လျော်ရမယ်</p></div>
-        {% elif a.net > 0 %}
-          <div class='col col-auto'><p>{{ a.arc.user.first_name|upper }} ဆီက <b class='p-1 border-1 rounded bg-success-subtle'>{{ a.net|abs_value|intcomma }}</b> ရမယ်</p></div>
+          {% if a.arc.user != request.user %}
+            {% if a.net < 0 %}
+              <div class='col col-auto'><p>{{ a.arc.user.first_name|upper }} ကို <b class='net p-1 border-1 rounded bg-warning-subtle' data-net='{{ a.net }}'>{{ a.net|abs_value|intcomma }}</b> လျော်ရမယ်</p></div>
+            {% elif a.net > 0 %}
+              <div class='col col-auto'><p>{{ a.arc.user.first_name|upper }} ဆီက <b class='net p-1 border-1 rounded bg-success-subtle'  data-net='{{ a.net }}'>{{ a.net|abs_value|intcomma }}</b> ရမယ်</p></div>
+            {% endif %}
+            </div>
+
+          {% else %}
+            {% if a.net < 0 %}
+            <div class='col col-auto'><p>ဒိုင်ဆီက <b class='net p-1 border-1 rounded bg-warning-subtle' data-net='{{ a.net }}'>{{ a.net|abs_value|intcomma }}</b> ပြန်ရမယ်</p></div>
+            {% elif a.net > 0 %}
+              <div class='col col-auto'><p>ဒိုင်ကို<b class='net p-1 border-1 rounded bg-success-subtle'  data-net='{{ a.net }}'>{{ a.net|abs_value|intcomma }}</b> ပေးရမယ်</p></div>
+            {% endif %}
+            </div>
+
+          {% endif %}
         {% endif %}
-        </div>
-        {% endif %}
+
         <div class='row row-cols-auto'>
             {% for l in a.arc.archiveLog.all %}
             <div class='col col-auto border border-1 p-2'><b class='bg-info rounded p-1'>{{ l.num.num }}</b><span class='ms-1'>{{ l.value|intcomma }}</span>
@@ -70,12 +94,13 @@
             </div>
             {% endfor %}
         </div>
-        
+
       </div>
     </div>
   </div>
 {% endfor %}
 </div>
+{% endfor %}
 
 <div class='container mx-auto mt-3' style="width: fit-content">
 <div class="pagination">

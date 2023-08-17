@@ -21,10 +21,10 @@
 {% endif %}
 
 <div class="list-group">
-  <button type='button' class='nav-btn-custom no-bdr-top' onclick="showSell()">ရောင်းမယ်</button>
-  <button type='button' class='nav-btn-custom' onclick="GetMyLogs()">ဒီနေ့မှတ်တမ်း</button>
+  <button type='button' class='nav-btn-custom no-bdr-top' id='sellBtn' onclick="showSell()">ရောင်းမယ်</button>
+  <button type='button' class='nav-btn-custom' id='logBtn' onclick="GetMyLogs()">ဒီနေ့မှတ်တမ်း</button>
   <a type='button' class='nav-btn-custom' href='{% url 'history' %}'>အရင် စာရင်း</a>
-  <button type='button' class='nav-btn-custom' onclick="GetTotalAcount()">စုစုပေါင်း</button>
+  <button type='button' class='nav-btn-custom' id='totalBtn' onclick="GetTotalAcount()">စုစုပေါင်း</button>
   <a type='button' class='nav-btn-custom no-bdr-bottom' href='{% url 'logout_view' %}' >အကောင့် ထွက်မယ်</a>
   
 </div>

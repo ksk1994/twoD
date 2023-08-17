@@ -34,16 +34,18 @@ class Log(models.Model):
 
 
     def serialize(self):
-        formatted_time = self.time.strftime('%Y-%m-%d %H:%M')
+        formatted_time = self.time.strftime("%I:%M %p")
         return {
             'id': self.id,
             'user': self.user.username,
+            'user_name': self.user.first_name,
             'num': self.num.serialize(),
             'value': self.value,
             'time': formatted_time,
         }
 
-        
+class Close(models.Model):
+    is_close = models.BooleanField(default=True)
 
 
 

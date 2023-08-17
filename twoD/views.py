@@ -13,15 +13,18 @@ from django.utils import timezone
 from datetime import time
 from django.core.paginator import Paginator
 from django.db.models import Q
+from collections import defaultdict
 
 
 #importing models
-from .models import User, Log, Number, Value, ArchiveLog, Archive, UserSetting
+from .models import User, Log, Number, Value, ArchiveLog, Archive, UserSetting, Close
 
 # Create your views here.
 @login_required(login_url='/login')
 def index(request):
     try:
+        c = Close.objects.get(pk=1)
+        print(c.is_close)
         if request.user.is_owner:
             nums = Number.objects.all()
             users = User.objects.filter(is_owner=False)
@@ -30,11 +33,13 @@ def index(request):
                 'nums': nums,
                 'users': users,
                 'settings': settings,
+                'close': c.is_close,
             })
         else:
             setting = UserSetting.objects.filter(user=request.user).first()
             return render(request, 'twoD/sellerPage.html', {
-                'setting':setting
+                'setting':setting,
+                'close': c.is_close,
             })
     except Exception as e:
         # Handle any unexpected exceptions
@@ -47,7 +52,7 @@ def login_view(request):
         username = request.POST["username"]
         password = request.POST['password']
         user = authenticate(request, username=username, password=password)
-        
+
         if user is not None:
             dj_login(request, user)
             return HttpResponseRedirect(reverse("index"))
@@ -56,9 +61,9 @@ def login_view(request):
             return redirect("login")
     else:
         return render(request, "twoD/login.html")
-    
 
-    
+
+
 def register(request):
     if request.method == 'POST':
         name = request.POST['name'].strip().capitalize()
@@ -72,37 +77,37 @@ def register(request):
         if password != confirmation:
             messages.error(request, "Passwords not match!")
             return HttpResponseRedirect(reverse("register"))
-        
+
         #creating new account
         try:
             user = User.objects.create_user(username, email, password)
             user.phone = phone
             user.first_name = name
             user.save()
-            
+
 
         except IntegrityError:
             messages.error(request, "Username already taken!")
             return redirect("register")
-        
+
         nums = Number.objects.all()
         val_list = [Value(num=num, user=user) for num in nums]
-        
+
 
         #create user setting
         setting = UserSetting(user=user)
         setting.save()
 
-        
+
         Value.objects.bulk_create(val_list)
 
-        dj_login(request, user)
+        dj_login(request, request.user)
         messages.success(request, 'Successfully registered!')
-        return redirect('index')
+        return redirect('setting')
 
     else:
         return render(request, 'twoD/register.html')
-        
+
 
 def recover(request):
     if request.method == 'POST':
@@ -115,7 +120,7 @@ def recover(request):
         except User.DoesNotExist:
             messages.error(request, 'အကောင့်နာမည် မှားနေပါတယ်!')
             return redirect('recover')
-        
+
         if code != user.random_field:
             messages.error(request, 'လျှိုဝှက်နံပါတ် မှားနေပါတယ်!')
             return redirect('recover')
@@ -143,7 +148,7 @@ def closeEntry(request):
     #get local time
     myanmar_tz = pytz.timezone('Asia/Yangon')
     current_time = timezone.localtime(timezone.now(), myanmar_tz)
-    
+
     #check pm am
     am_pm = 'AM' if current_time.hour < 11 or (current_time.hour == 11 and current_time.minute < 50) else 'PM'
 
@@ -154,7 +159,7 @@ def closeEntry(request):
         limit = 99999999999
         payRate = 80.0
         comm = 0.12
-        
+
         setting = UserSetting.objects.filter(user=user).first()
         if setting:
             limit = setting.limit
@@ -163,19 +168,22 @@ def closeEntry(request):
         #query all values
         values = Value.objects.filter(Q(user=user) & (Q(amount__gt=0) | ~Q(limit=limit)))
         if values.exists():
-            archive = Archive(user=user, ampm=am_pm, payout_rate=payRate, commission=comm)
+            archive = Archive(user=user, ampm=am_pm, jp=None, payout_rate=payRate, commission=comm)
             archive.save()
 
-            archive_logs = [ArchiveLog(num=v.num, value=v.amount, limit=v.limit) for v in values if v.amount != 0]
-            ArchiveLog.objects.bulk_create(archive_logs)
+            archive_logs = []
+            for value in values:
+                if value.amount != 0:
+                    archive_log = ArchiveLog(num=value.num, value=value.amount, limit=value.limit)
+                    archive_log.save()
+                    archive_logs.append(archive_log)
+
             archive.archiveLog.set(archive_logs)
-            archive.save()
 
-           
             values.update(amount=0, limit=limit)
 
             Log.objects.filter(user=user).delete()
-
+    Close.objects.filter(pk=1).update(is_close=True)
     return JsonResponse({
         'msg': 'Success!',
     }, status=201)
@@ -187,38 +195,54 @@ def history(request):
         arcs = Archive.objects.all().order_by('-date', 'ampm', 'user')
     else:
         arcs = Archive.objects.filter(user=request.user).order_by('-date', 'ampm')
-    archives = []
-    for ar in arcs:
-        total = 0
-        loss = 0
-        commission = 0
-        for l in ar.archiveLog.all():
-            total += l.value
-            if ar.jp == l.num.num:
-                loss = l.value * ar.payout_rate
-        
-        commission = total * ar.commission
-        
-        net = 0
-        if ar.jp:
-            net = total - commission - loss
+
+    archives_by_date = defaultdict(list)
+
+    for a in arcs:
+        archives_by_date[a.date].append(a)
 
 
-        archives.append({
+    arList = []
+    arListNet = 0
+    for dt in archives_by_date:
+        arcs = []
+        for ar in archives_by_date[dt]:
+            total = 0
+            loss = 0
+            commission = 0
+            for l in ar.archiveLog.all():
+                total += l.value
+                if ar.jp == l.num.num:
+                    loss = l.value * ar.payout_rate
+
+            commission = total * ar.commission
+
+            net = 0
+            if ar.jp:
+                net = total - commission - loss
+                arListNet += net
+            arcs.append({
             'commission': commission,
             'total': total,
             'arc': ar,
             'loss': loss,
             'net': net,
+            })
+
+
+        arList.append({
+            'date': dt,
+            'arList': arcs,
+            'net': arListNet,
         })
-    print(archives)
-    paginator = Paginator(archives, 25)
+
+    paginator = Paginator(arList, 7)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
     return render(request, 'twoD/history.html', {
         'arcs': page_obj
     })
-        
+
 
 
 
@@ -232,15 +256,20 @@ def add_value(request):
         updatedVals = []
         values = []
         errors = []
+        c = Close.objects.get(pk=1)
+        if c.is_close:
+            return JsonResponse({
+                    'msg': 'error'
+                    }, status=401)
         for id in nums:
             try:
                 value = Value.objects.get(user=request.user, num_id=id)
-                
+
             except Value.DoesNotExist:
                 return JsonResponse({
                     'msg': 'error'
                     }, status=401)
-        
+
             if value.checkLimit(new_value):
                 errors.append(value)
             else:
@@ -255,8 +284,8 @@ def add_value(request):
             value.amount = value.amount + int(new_value)
             value.save()
             updatedVals.append(value)
-            
-        
+
+
         return JsonResponse({
                 'errors': [val.serialize() for val in errors],
                 'vals': [val.serialize() for val in updatedVals]
@@ -269,19 +298,28 @@ def add_value(request):
 def getData(request):
     if request.method == "GET":
         vals = Value.objects.filter(user=request.user)
-
-        return JsonResponse({
-            'vals': [val.serialize() for val in vals]
-        }, status=201)
+        close = Close.objects.get(pk=1)
+        if close.is_close:
+            return JsonResponse({
+                'c': close.is_close,
+            }, status=201)
+        else:
+            return JsonResponse({
+                'vals': [val.serialize() for val in vals],
+            }, status=201)
+            
     else:
         return JsonResponse({'msg': 'error'}, status=401)
 
-    
+
 
 @login_required
 def getLogs(request):
     if request.method == "GET":
-        logs = Log.objects.filter(user=request.user).order_by('-time')
+        if request.user.is_owner:
+            logs = Log.objects.all().order_by('-time')
+        else:
+            logs = Log.objects.filter(user=request.user).order_by('-time')
 
         return JsonResponse({
             'logs': [log.serialize() for log in logs]
@@ -290,7 +328,7 @@ def getLogs(request):
         return JsonResponse({
                     'msg': 'error'
                     }, status=401)
-    
+
 
 @login_required
 def deleteLog(request):
@@ -298,14 +336,14 @@ def deleteLog(request):
         json_data = json.loads(request.body)
         id = json_data.get('id')
         try:
-            
+
             log = Log.objects.get(pk=id)
             value = Value.objects.get(user=request.user, num=log.num)
         except (Log.DoesNotExist, Value.DoesNotExist):
-            
+
             return JsonResponse({'msg': 'error'}, status=400)
-        
-        
+
+
         value.amount = value.amount - log.value
         if value.amount >= 0:
             value.save()
@@ -322,7 +360,7 @@ def getFullAccount(request):
     if request.method == 'GET':
         vals = Value.objects.filter(user=request.user, amount__gt=0)
         return JsonResponse({"vals": [value.serialize() for value in vals]}, status=201)
-    
+
     else:
         return JsonResponse({
                     'msg': 'error'
@@ -351,13 +389,13 @@ def getOwnerData(request):
                 'vals': [v.serialize() for v in vals],
             }
             jsonData.append(data)
-            
+
         return JsonResponse({'data': jsonData}, status=201)
-    
+
 
 @login_required
 def setLimit(request):
-    if request.method == 'PUT':
+    if request.method == 'PUT' and request.user.is_owner:
         json_data = json.loads(request.body)
         user = json_data.get('user')
         num = json_data.get('num')
@@ -383,7 +421,7 @@ def setLimit(request):
             return JsonResponse({'msg': 'error'}, status=401)
     else:
         return JsonResponse({'msg': 'error'}, status=401)
-        
+
 
 @login_required
 def getArcs(request):
@@ -402,7 +440,7 @@ def getArcs(request):
     else:
         return JsonResponse({'msg': 'error'}, status=401)
 
-    
+
 @login_required
 def addJp(request):
     if request.method == 'POST' and request.user.is_owner:
@@ -456,4 +494,16 @@ def setting(request):
             return JsonResponse({
             'msg': 'error',
         }, status=404)
-    
+
+
+@login_required
+def close(request):
+    if request.method == 'PUT' and request.user.is_owner:
+        json_data = json.loads(request.body)
+        is_close = json_data.get('isClose')
+        c = Close.objects.filter(pk=1)
+        c.update(is_close=is_close)
+        print(c[0].is_close)
+        return JsonResponse({
+                'c': c[0].is_close,
+            }, status=200)

@@ -5,15 +5,15 @@ function showSaveSetting(event) {
     let body = document.getElementById('mdl_body');
 
     body.innerHTML = `${name} အတွက် အခု setting ကို save မှာသေချာပြီလား?`
-    
+
     if (!document.getElementById('mdl_submit')) {
         let btn = document.createElement('button');
         btn.id = 'mdl_submit'
         btn.className = 'btn btn-primary';
         btn.type = 'button';
-        
 
-        
+
+
         document.getElementById('mdl_footer').append(btn);
     }
     document.getElementById('mdl_submit').onclick = function() {
@@ -26,7 +26,7 @@ function showSaveSetting(event) {
 
 function saveSetting(id) {
     document.getElementById('mdl_close').click();
-    console.log(id)
+
     let limit = parseInt(document.getElementById(`limit_${id}`).value);
     let payRate = parseFloat(document.getElementById(`pay_${id}`).value);
     let commission = parseFloat(document.getElementById(`com_${id}`).value);
@@ -50,24 +50,29 @@ function saveSetting(id) {
         .then((data) => {
             hideLoading();
             if (data.msg === 'error') {
-                showNewNoti('Error တက်သွားလို့ Refresh လုပ်ပြီး နောက်တခေါက်ထပ် လုပ်ကြည့်ပါ! Retry!', false, 'error')
+                showNewNoti('Error တက်သွားလို့ Refresh လုပ်ပြီး နောက်တခေါက်ထပ် လုပ်ကြည့်ပါ! Retry!', false, 'err3or')
             } else {
-                console.log(data)
-                document.getElementById(`limit_${data.setting['id']}`).value = data.setting['limit']
-                document.getElementById(`pay_${data.setting['id']}`).value = parseFloat(data.setting['payRate'])
-                document.getElementById(`com_${data.setting['id']}`).value = parseFloat(data.setting['commission'])
-                showNewNoti('အောင်မြင်စွာ saveပြီးပါပြီ။', true, 'success')
+
+                document.getElementById(`limit_${data.setting['id']}`).value = data.setting['limit'];
+                document.getElementById(`limit_${data.setting['id']}`).dataset.value = data.setting['limit'];
+                document.getElementById(`pay_${data.setting['id']}`).value = parseFloat(data.setting['payRate']);
+                document.getElementById(`pay_${data.setting['id']}`).dataset.value = parseFloat(data.setting['payRate']);
+                document.getElementById(`com_${data.setting['id']}`).value = parseFloat(data.setting['commission']);
+                document.getElementById(`com_${data.setting['id']}`).dataset.value = parseFloat(data.setting['commission']);
+                showNewNoti('အောင်မြင်စွာ saveပြီးပါပြီ။', true, 'succe1ss')
+
+                activateSaveBtn(data.setting['id']);
             }
-            
+
         })
     } else {
-        showNewNoti('ဖြည့်တဲ့ တန်ဖိုးမှားနေပါတယ်| သေသေချာချာ စစ်ကြည့်ပါ', false, 'error')
+        showNewNoti('ဖြည့်တဲ့ တန်ဖိုးမှားနေပါတယ်| သေသေချာချာ စစ်ကြည့်ပါ', false, 'erro2r')
     }
-    
+
 }
 
 function showNewNoti(str, ok, id) {
-    console.log(id)
+
     if (document.getElementById(`noti_${id}`)) {
         document.getElementById(`noti_${id}`).remove();
     }
@@ -78,11 +83,11 @@ function showNewNoti(str, ok, id) {
     } else {
         div.className = 'toast align-items-center text-bg-danger border-0'
     }
-    
+
     div.role = 'alert';
     div.ariaLive = 'assertive';
     div.ariaAtomic = 'true';
-    div.setAttribute('data-bs-delay', 5000)
+    div.setAttribute('data-bs-delay', 7000)
     div.innerHTML = `
     <div class="d-flex">
         <div class="toast-body" id="new_noti_body">
@@ -96,8 +101,10 @@ function showNewNoti(str, ok, id) {
     const toast = new bootstrap.Toast(toastLiveExample)
     toast.show()
     setInterval(function() {
-        document.getElementById(`close_${id}`).click()
-    }, 5000);
+        if (document.getElementById(`noti_${id}`)) {
+        document.getElementById(`noti_${id}`).remove();
+        }
+    }, 7000);
 }
 
 function showLoading() {
@@ -110,7 +117,7 @@ function hideLoading() {
 
 function getCookie(name) {
     let cookieValue = null;
-    
+
     if (document.cookie && document.cookie !== '') {
         const cookies = document.cookie.split(';');
         for (let i = 0; i < cookies.length; i++) {
@@ -128,25 +135,25 @@ function getCookie(name) {
     return cookieValue;
 }
 
-function activateSaveBtn(event) {
-    let id = event.currentTarget.dataset.id;
+function activateSaveBtn(id) {
+
     let settings = Array.from(document.querySelectorAll(`.setting_${id}`));
     let different = 0
     settings.forEach(setting => {
-        console.log(setting)
+
         let oriValue = parseFloat(setting.dataset.value);
         let newValue = parseFloat(setting.value);
         if (newValue != oriValue) {
             different++
         }
-        console.log(newValue, oriValue, newValue === oriValue)
+
     })
-    
-    console.log(different)
+
+
     if (different > 0) {
         document.getElementById(`${id}`).disabled = false;
     } else {
         document.getElementById(`${id}`).disabled = true;
     }
-    
+
 }

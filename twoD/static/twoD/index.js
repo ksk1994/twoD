@@ -3,8 +3,53 @@ document.addEventListener('DOMContentLoaded', function () {
 })
 
 
+async function showLogs() {
+    const mdl = document.getElementById('mdl_body');
+    mdl.innerHTML = `
+        <p aria-hidden="true" class='placeholder-glow'>
+            <span class="placeholder col-12"></span>
+        </p>`.repeat(5);
+
+    const mdlTitle = document.getElementById('mdl_title');
+    mdlTitle.innerHTML = 'ဒီနေ့မှတ်တမ်း';
+
+    try {
+        const response = await fetch('/getLogs');
+        const data = await response.json();
+
+        if (data.msg === 'error') {
+            showNewNoti('Error တက်သွားလို့ Refresh လုပ်ပါ!', false, 'er2ror');
+        } else {
+            mdl.innerHTML = '<ul class="list-group" id="logList"></ul>';
+            const logArea = document.getElementById('logList');
+
+            data.logs.forEach(log => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item d-flex justify-content-between align-items-start';
+                li.id = `log_${log.id}`;
+                li.innerHTML = `
+                    <div class="ms-2 me-auto">
+                        <div class="fw-bold"><span class="me-2 bg-primary rounded p-1 mb-1 text-light">${log.num.num}</span><b>+${log.value}</b></div>
+                        ${log.user_name}
+                    </div>
+                    <div><small class='ms-2'>${log.time}</small></div>
+                `;
+                logArea.appendChild(li);
+            });
+        }
+    } catch (error) {
+        console.error(error);
+        showNewNoti('An error occurred. Please try again later.', false, 'error');
+    }
+
+    document.getElementById('logModalBtn').click();
+    loadAllData();
+}
+
+
+
 function showNewNoti(str, ok, id) {
-    console.log(id)
+
     if (document.getElementById(`noti_${id}`)) {
         document.getElementById(`noti_${id}`).remove();
     }
@@ -19,7 +64,7 @@ function showNewNoti(str, ok, id) {
     div.role = 'alert';
     div.ariaLive = 'assertive';
     div.ariaAtomic = 'true';
-    div.setAttribute('data-bs-delay', 5000)
+    div.setAttribute('data-bs-delay', 8000)
     div.innerHTML = `
     <div class="d-flex">
         <div class="toast-body" id="new_noti_body">
@@ -33,8 +78,10 @@ function showNewNoti(str, ok, id) {
     const toast = new bootstrap.Toast(toastLiveExample)
     toast.show()
     setInterval(function() {
-        document.getElementById(`close_${id}`).click()
-    }, 5000);
+        if (document.getElementById(`noti_${id}`)) {
+        document.getElementById(`noti_${id}`).remove();
+        }
+    }, 8000);
 }
 
 
@@ -46,11 +93,11 @@ function loadAllData() {
     .then((data) => {
         hideLoading();
         if (data.msg === 'error') {
-            showNewNoti('Error တက်သွားလို့ Refresh လုပ်ပါ!', false, 'error')
+            showNewNoti('Error တက်သွားလို့ Refresh လုပ်ပါ!', false, 'er1ror')
         }
 
         let totalDiv = document.getElementById('hide_total');
-
+        totalDiv.innerHTML = '';
         for (let y = 0; y < data.data.length; y++) {
             let user = data.data[y]['user'];
             let setting = data.data[y]['setting']
@@ -83,15 +130,15 @@ function loadAllData() {
 function limitColor(num, user, limit, amount) {
     let amountDiv = document.getElementById(`value_${num}_${user}`);
     if (limit/10*9 < amount) {
-        amountDiv.className = 'bg-danger';
+        amountDiv.className = 'datas bg-danger';
     } else if (limit/6*5 < amount) {
-        amountDiv.className = 'bg-danger-subtle';
+        amountDiv.className = 'datas bg-danger-subtle';
     } else if (limit/5*4 < amount) {
-        amountDiv.className = 'bg-warning';
+        amountDiv.className = 'datas bg-warning';
     } else if(limit/4*3 < amount) {
-        amountDiv.className = 'bg-warning-subtle';
+        amountDiv.className = 'datas bg-warning-subtle';
     } else {
-        amountDiv.className = '';
+        amountDiv.className = 'datas';
     }
 }
 
@@ -102,7 +149,7 @@ function oldloadOwnerData() {
     .then(response => response.json())
     .then((data) => {
         hideLoading();
-        console.log(data)
+
 
         var dataDiv = document.getElementById('accordionExample');
 
@@ -229,13 +276,13 @@ function setLimit() {
     const selectedNumIndex = num.selectedIndex;
     const selectedNumOption = num.options[selectedNumIndex];
     const n = selectedNumOption.innerHTML;
-    
+
     let limit_value = document.getElementById('limit_value').value;
     if (user === 'User' || num === 'Number' ||  limit_value=== "") {
-        showNewNoti('ဖြည့်တဲ့ တန်ဖိုးမှားနေပါတယ်| သေသေချာချာ စစ်ကြည့်ပါ', false, 'error')
-        
+        showNewNoti('ဖြည့်တဲ့ တန်ဖိုးမှားနေပါတယ်| သေသေချာချာ စစ်ကြည့်ပါ', false, 'er3ror')
+
     } else if (parseInt(limit_value) < 0) {
-        showNewNoti('ဖြည့်တဲ့ တန်ဖိုးမှားနေပါတယ်| သေသေချာချာ စစ်ကြည့်ပါ', false, 'error')
+        showNewNoti('ဖြည့်တဲ့ တန်ဖိုးမှားနေပါတယ်| သေသေချာချာ စစ်ကြည့်ပါ', false, 'er2ror')
     } else {
         const headers = {
             'X-CSRFToken': getCookie('csrftoken'),
@@ -254,19 +301,19 @@ function setLimit() {
         .then((data) => {
             hideBtnLoading('ထည့်မယ်')
             if (data.msg === 'error') {
-                showNewNoti('Error တက်သွားလို့  နောက်တခေါက်ထပ် လုပ်ကြည့်ပါ! Retry!', false, 'error')
+                showNewNoti('Error တက်သွားလို့  နောက်တခေါက်ထပ် လုပ်ကြည့်ပါ! Retry!', false, 'error4')
             }
 
-            console.log(data)
+
             if (data.vals) {
                 document.getElementById('mdl_close').click();
                     showNewNoti(`<b class='bg-info rounded p-1'>${u}</b>
-                        <b class='bg-warning rounded p-1'>${n}</b> Limit is set to ${limit_value} successfully!`, true, 'success')
+                        <b class='bg-warning rounded p-1'>${n}</b> ဘရိတ် ${limit_value} ဖြစ်သွားပါပြီ!`, true, 'success1')
 
                 for (let i = 0; i < data.vals.length; i++) {
                     let v = data.vals[i];
                     let defaultLimit = parseInt(document.getElementById(`defaultLimit_${v['user_id']}`).value);
-                    console.log(defaultLimit)
+
                     if (v['limit'] != defaultLimit) {
                         if (document.getElementById(`limit_${v['num']['id']}_${v['user_id']}`)) {
                             document.getElementById(`limit_${v['num']['id']}_${v['user_id']}`).innerHTML =  `<div class='col'><small>(${v['limit']})</small></div>`
@@ -286,7 +333,7 @@ function setLimit() {
 
                     }
                     limitColor(v['num']['id'], v['user_id'], v['limit'], v['amount']);
-                    
+
                 }
             }
         })
@@ -363,7 +410,7 @@ function checkTotal() {
         <span class="input-group-text fw-bold">${total.dataset.name}</span>
         <input type="text" aria-label="Value" class="form-control" value="${total.dataset.value}" readonly>
         `
-        console.log(div)
+
         body.append(div);
 
     })
@@ -412,25 +459,29 @@ function closeEntry() {
     .then((data) => {
         hideBtnLoading('သေချာတယ်')
         if (data.msg === 'error') {
-            showNewNoti('Error တက်သွားလို့ Refresh လုပ်ပြီး နောက်တခေါက်ထပ် လုပ်ကြည့်ပါ! Retry!', false, 'error')
+            showNewNoti('Error တက်သွားလို့ Refresh လုပ်ပြီး နောက်တခေါက်ထပ် လုပ်ကြည့်ပါ! Retry!', false, 'erro5r')
         }
         document.getElementById('closeOffCanvas').click();
-        console.log(data)
+
         if (data.msg === 'Success!') {
             let vals = Array.from(document.querySelectorAll('.vals'));
             vals.forEach(v => {
-                console.log(v)
+
                 v.innerHTML = 0;
 
             })
             let lims = Array.from(document.querySelectorAll('.lims'));
             lims.forEach(l => {
-                console.log(l)
+
                 l.remove();
 
             })
+            let ds = Array.from(document.querySelectorAll('.datas'));
+            ds.forEach(d => {
+                d.className = 'datas'
+            })
 
-            showNewNoti('စရင်းအားလုံးပိတ်ပြီးပါပြီ။ အရင်နေ့စာရင်းထဲမှာ saveထားပါတယ်', true, 'success')
+            showNewNoti('စရင်းအားလုံးပိတ်ပြီးပါပြီ။ အရင်နေ့စာရင်းထဲမှာ saveထားပါတယ်', true, 'su2ccess')
 
         }
     })
@@ -456,9 +507,9 @@ function showAddJackpot() {
     .then((data) => {
         hideLoading()
         if (data.msg === 'error') {
-            showNewNoti('Error တက်သွားလို့ Refresh လုပ်ပြီး နောက်တခေါက်ထပ် လုပ်ကြည့်ပါ! Retry!', false, 'error')
+            showNewNoti('Error တက်သွားလို့ Refresh လုပ်ပြီး နောက်တခေါက်ထပ် လုပ်ကြည့်ပါ! Retry!', false, 'error6')
         }
-        console.log(data)
+
         let select = document.getElementById('inputGroupSelect01')
         for (let i = 0; i < data.arcs.length; i++) {
             let option = document.createElement('option');
@@ -500,12 +551,41 @@ function addJackpot() {
     .then((data) => {
         hideBtnLoading('ထည့်မယ်');
         if (data.msg === 'error') {
-            showNewNoti('Error တက်သွားလို့ Refresh လုပ်ပြီး နောက်တခေါက်ထပ် လုပ်ကြည့်ပါ! Retry!', false, 'error')
+            showNewNoti('Error တက်သွားလို့ Refresh လုပ်ပြီး နောက်တခေါက်ထပ် လုပ်ကြည့်ပါ! Retry!', false, 'err7or')
         } else if (data.msg === 'success') {
-            showNewNoti('ပေါက်သီးထည့်တာ အောင်မြင်ပါတယ်', true, 'success')
+            showNewNoti('ပေါက်သီးထည့်တာ အောင်မြင်ပါတယ်', true, 'success4')
         }
-        console.log(data)
+
     })
     document.getElementById('mdl_close').click();
 }
 
+
+function openClose(event) {
+    let isOpen = event.currentTarget.checked;
+    const headers = {
+        'X-CSRFToken': getCookie('csrftoken'),
+    };
+    fetch('/close', {
+        method: 'PUT',
+        headers: headers,
+        body: JSON.stringify({
+            isClose: ! isOpen
+        })
+    })
+    .then(response => response.json())
+    .then((data) => {
+        let closeBtn = document.getElementById('openClose');
+        let closeBtnLable = document.getElementById('opencloseLabel');
+        let closeCaption = document.getElementById('openCloseCaption');
+        if (data.c) {
+            closeBtn.checked = false;
+            closeBtnLable.innerHTML = 'Now Close';
+            closeCaption.style.display = 'block';
+        } else {
+            closeBtn.checked = true;
+            closeBtnLable.innerHTML = 'Now Open';
+            closeCaption.style.display = 'none';            
+        }
+    })
+}

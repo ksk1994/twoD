@@ -4,8 +4,13 @@
 
 {% block content %}
 <div class="list-group">
+  <div class="form-check form-switch p-0 mx-auto">
+    <input class="form-check-input" type="checkbox" role="switch" id="openClose" onclick='openClose(event)' {% if not close %} checked {% endif %}>
+    <label class="form-check-label" id='opencloseLabel' for="openClose">{% if close %} Now Close {% else %} Now Open {% endif %}</label>
+  </div>
   <button type='button' class='nav-btn-custom no-bdr-top' onclick="showSetLimit()">ဘရိတ် ထည့်မယ်</button>
   <button type='button' class='nav-btn-custom ' onclick="checkTotal()" >စုစုပေါင်း</button>
+  <button type='button' class='nav-btn-custom ' onclick="showLogs()" >ဒီနေ့မှတ်တမ်း</button>
   <button type='button' class='nav-btn-custom ' onclick='showCloseEntry()'>အဝင်ပိတ်မယ်</button>
   <button type='button' class='nav-btn-custom ' onclick='showAddJackpot()'>ပေါက်သီးထည့်မယ်</button>
   <a type='button' class='nav-btn-custom ' href='{% url 'history' %}' >အရင် စာရင်း</a>
@@ -56,6 +61,8 @@
   {% endfor %}
 </div>
 
+
+
 <div id="hide_total">
 
 </div>
@@ -67,7 +74,10 @@
   </div>
 </div>
 <div class="table-container">
-  <table>
+  <table class="caption-top">
+    <caption>
+      <span class='text-bg-warning rounded p-1' id='openCloseCaption' {% if close %} style='display: block;width: fit-content;' {% else %} style='display: none;width: fit-content;' {% endif %}>စာရင်းများအားလုံးပိတ်ထားပါသည်</span>
+    </caption>
     <thead>
       <tr>
         <th>NO</th>

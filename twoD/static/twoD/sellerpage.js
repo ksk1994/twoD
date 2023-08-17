@@ -13,26 +13,35 @@ function loadData() {
         if (data.msg === 'error') {
             showNewNoti('Error တက်သွားလို့ Refresh လုပ်ပါ!', false, 'error')
         }
-        console.log(data)
         let defaultLimit = parseInt(document.getElementById('defaultLimit').value);
         let dataArea = document.getElementById('allData');
-        for (let i = 0; i < data.vals.length; i++) {
-            let val = data.vals[i]
-            
-            let div = document.createElement('div');
-            div.className = 'input-group mb-3';
-            div.innerHTML = `
-                <span class="input-group-text px-1 nums" data-id='${val['num']['id']}' id='num_${val['num']['id']}'>${val['num']['num']}</span>
-                <span class="input-group-text bg-success px-1" id="original_value_${val['num']['id']}">${val['amount']}</span>
-                <span class="input-group-text bg-info px-1" type='number' value="${val['limit']}" id='limit_${val['num']['id']}' hidden>${val['limit']}</span>
-                <input id="value_${val['num']['id']}" type="number" min="1" class="form-control" placeholder="Add Amount" aria-label="Add Amount">
-                <button onclick="addValue(event)" class="btn btn-outline-success" id="${val['num']['id']}" type="button" ><i class="bi bi-plus-lg"></i></button>
-            `
-            dataArea.append(div)
-            if (val['limit'] != defaultLimit) {
-                document.getElementById(`limit_${val['num']['id']}`).hidden = false;
+        if (data.c) {
+            let h = document.createElement('h5');
+            h.className = 'text-bg-warning text-center p-2 my-auto';
+            h.innerHTML = 'စာရင်းများအားလုံးပိတ်ထားပါသည်';
+            dataArea.append(h);
+            document.getElementById('sellBtn').style.display = 'none';
+            document.getElementById('logBtn').style.display = 'none';
+            document.getElementById('totalBtn').style.display = 'none';
+        } else {
+            for (let i = 0; i < data.vals.length; i++) {
+                let val = data.vals[i]
+    
+                let div = document.createElement('div');
+                div.className = 'input-group mb-3';
+                div.innerHTML = `
+                    <span class="input-group-text px-1 nums" data-id='${val['num']['id']}' id='num_${val['num']['id']}'>${val['num']['num']}</span>
+                    <span class="input-group-text bg-success px-1" id="original_value_${val['num']['id']}">${val['amount']}</span>
+                    <span class="input-group-text bg-info px-1" type='number' value="${val['limit']}" id='limit_${val['num']['id']}' hidden>${val['limit']}</span>
+                    <input id="value_${val['num']['id']}" type="number" min="1" class="form-control" placeholder="Add Amount" aria-label="Add Amount">
+                    <button onclick="addValue(event)" class="btn btn-success" id="${val['num']['id']}" type="button" ><i class="bi bi-plus-lg"></i></button>
+                `
+                dataArea.append(div)
+                if (val['limit'] != defaultLimit) {
+                    document.getElementById(`limit_${val['num']['id']}`).hidden = false;
+                }
+                limitCheck(val['limit'], val['amount'], val['num']['id'])
             }
-            limitCheck(val['limit'], val['amount'], val['num']['id'])
         }
     })
 }
@@ -57,7 +66,7 @@ function limitCheck(limit, amount, id) {
 function addValue(event) {
     let id = event.currentTarget.id;
     let value = parseInt(document.getElementById(`value_${id}`).value)
-    console.log(id, value)
+
     let isExceedLimit = checkLimit(id, value)
     let valueChecked = checkValue(id, value);
     if (isExceedLimit && valueChecked) {
@@ -65,16 +74,16 @@ function addValue(event) {
             nums: [id, ],
             value: value,
         };
-        
+
         fetchValue(jsonData);
     } else {
-        showNewNoti('ဘရိတ်ကျော်နေတယ်။', false, 'error')
+        showNewNoti('ဘရိတ်ကျော်နေတယ်။', false, 'error2')
     }
 }
 
 
 function fetchValue(jsonData) {
-    console.log(jsonData)
+
     const headers = {
         'X-CSRFToken': getCookie('csrftoken'),
     };
@@ -82,7 +91,7 @@ function fetchValue(jsonData) {
     ids.forEach(id => {
         showBtnLoading(id);
     })
-    
+
     fetch('/add_value', {
         method: 'POST',
         headers: headers,
@@ -94,9 +103,9 @@ function fetchValue(jsonData) {
             hideBtnLoading(id, `<i class="bi bi-plus-lg"></i>`);
         })
         if (data.msg === 'error') {
-            showNewNoti('Error တက်သွားလို့ Refresh လုပ်ပါ!', false, 'error')
+            showNewNoti('Error တက်သွားလို့ Refresh လုပ်ပါ!', false, 'error1')
         }
-        console.log(data)
+
         for (let i = 0; i < data.errors.length; i++) {
             let error = data.errors[i];
             document.getElementById(`limit_${error['num']['id']}`).value = error['limit'];
@@ -105,14 +114,14 @@ function fetchValue(jsonData) {
                 document.getElementById(`limit_${error['num']['id']}`).hidden = false;
             }
             document.getElementById(`value_${error['num']['id']}`).value = '';
-            showNewNoti(`<b class='bg-info rounded p-1'>${error['num']['num']}</b> limit <b class='bg-warning rounded p-1'>${error['limit']}</b> is reached.`, false, error['num']['id'])
+            showNewNoti(`<b class='bg-info rounded p-1'>${error['num']['num']}</b> limit <b class='bg-warning rounded p-1'>${error['limit']}</b> ဘရိတ် ကျော်နေပြီ.`, false, `error_${error['num']['id']}`)
         }
         for (let i = 0; i < data.vals.length; i++) {
             let val = data.vals[i];
             document.getElementById(`original_value_${val['num']['id']}`).innerHTML = `${val['amount']}`;
             limitCheck(val['limit'], val['amount'], val['num']['id'])
             document.getElementById(`value_${val['num']['id']}`).value = '';
-            showNewNoti(`<b class='bg-info rounded p-1'>${val['num']['num']}</b> ${jsonData['value']} ကို ဒိုင်မှ လက်ခံပါတယ်.`, true, val['num']['id'])
+            showNewNoti(`<b class='bg-info rounded p-1'>${val['num']['num']}</b> ${jsonData['value']} ကို ဒိုင်မှ လက်ခံပါတယ်.`, true, `success_${val['num']['id']}`)
         }
     })
 }
@@ -124,9 +133,9 @@ function GetMyLogs() {
     .then((data) => {
         hideLoading();
         if (data.msg === 'error') {
-            showNewNoti('Error တက်သွားလို့ Refresh လုပ်ပါ!', false, 'error')
+            showNewNoti('Error တက်သွားလို့ Refresh လုပ်ပါ!', false, 'er2ror')
         } else {
-            console.log(data)
+
             document.getElementById('logModalLabel').innerHTML = 'ဒီနေ့မှတ်တမ်း';
             let logArea = document.getElementById('logMdlBody');
             logArea.innerHTML = ''
@@ -147,7 +156,7 @@ function GetMyLogs() {
             }
             showMdl()
         }
-        
+
     })
 }
 
@@ -180,9 +189,9 @@ function GetTotalAcount() {
     .then(response => response.json())
     .then((data) => {
         hideLoading();
-        console.log(data)
+
         if (data.msg === 'error') {
-            showNewNoti('Error တက်သွားလို့ Refresh လုပ်ပါ!', false, 'error')
+            showNewNoti('Error တက်သွားလို့ Refresh လုပ်ပါ!', false, 'er3ror')
         }
         if (data.vals) {
             document.getElementById('logModalLabel').innerHTML = 'စုစုပေါင်း စာရင်း';
@@ -232,7 +241,7 @@ function showSell() {
     document.getElementById('logModalLabel').innerHTML = 'ရောင်းမယ်';
     let logArea = document.getElementById('logMdlBody');
     logArea.innerHTML = `
-    
+
     <div class="input-group mb-3">
     <div class="input-group-text">
         <input class="form-check-input mt-0" type="checkbox" value="" aria-label="Checkbox for following text input" id='r'>
@@ -242,7 +251,7 @@ function showSell() {
     </div>
     <select class="form-select" id="numSelect" onChange='checkRable(event)'>
         <option selected>ဂဏန်း</option>
-        
+
     </select>
     <input type="number" id='sellValue' class="form-control" aria-label="Text input with checkbox">
     </div>
@@ -295,22 +304,23 @@ function fetchSell() {
         const rNum = convertString(selectedOption.innerHTML);
         let rId = document.getElementById(rNum).value;
         nums.push(rId);
+        value = value / 2;
     }
     nums.forEach(num => {
         let limit = parseInt(document.getElementById(`limit_${num}`).innerHTML);
-        
+
         let target = parseInt(document.getElementById(`original_value_${num}`).innerHTML) + value;
         let no = document.getElementById(`num_${num}`).innerHTML;
-        console.log(limit, target, limit < target)
+
         if (limit < target) {
             showNewNoti(`<b class='bg-info rounded p-1'>${no}</b> ဘရိတ်ကျော်နေတယ်။ ဒိုင်မှ ${value} ကို လက်မခံပါ!`, false, num)
         } else {
             okNums.push(num);
         };
-        
-        
+
+
     })
-    
+
     if (okNums.length > 0) {
         const jsonData = {
             nums: okNums,
@@ -332,18 +342,18 @@ function convertString(input) {
 function checkRable(event) {
     // Get the select element
   const selectElement = event.target;
-  
+
   // Get the selected option
   const selectedIndex = selectElement.selectedIndex;
   const selectedOption = selectElement.options[selectedIndex];
-  
+
   // Get the inner HTML of the selected option
   const selectedText = selectedOption.innerHTML;
-  
+
   const parts = selectedText.split('');
   let r = document.getElementById('r');
   if (parts[0] === parts[1]) {
-    
+
     r.checked = false;
     r.disabled = true;
   } else {
@@ -352,7 +362,7 @@ function checkRable(event) {
 }
 
 function removeLog(id) {
-    console.log(id);
+
     const headers = {
         'X-CSRFToken': getCookie('csrftoken'),
     };
@@ -370,7 +380,7 @@ function removeLog(id) {
         if (data.msg === 'error') {
             showNewNoti('Error တက်သွားလို့ Refresh လုပ်ပြီး နောက်တခေါက်ထပ် လုပ်ကြည့်ပါ!', false, 'error')
         }
-        console.log(data)
+
         if(data.val) {
             document.getElementById(`original_value_${data.val['num']['id']}`).innerHTML = `${data.val['amount']}`;
             limitCheck(data.val['limit'], data.val['amount'], data.val['num']['id']);
@@ -380,14 +390,14 @@ function removeLog(id) {
                 showNewNoti('မှတ်တမ်းကို ဖျက်ပြီးပါပြီ!', true, id)
             })
         }
-        
+
     })
 }
 
 function checkLimit(id, value) {
     let limit = parseInt(document.getElementById(`limit_${id}`).value);
     let target = parseInt(document.getElementById(`original_value_${id}`).innerHTML) + value;
-  
+
     if (limit < target) {
         document.getElementById(`value_${id}`).value = '';
         let num = document.getElementById(`num_${id}`);
@@ -411,7 +421,7 @@ function checkValue(id, value) {
 
 function getCookie(name) {
     let cookieValue = null;
-    
+
     if (document.cookie && document.cookie !== '') {
         const cookies = document.cookie.split(';');
         for (let i = 0; i < cookies.length; i++) {
@@ -442,7 +452,10 @@ function hideLoading() {
 
 function showNewNoti(str, ok, id) {
     console.log(id)
-    
+    if (document.getElementById(`noti_${id}`)) {
+            document.getElementById(`noti_${id}`).remove();
+        }
+
     var div = document.createElement("div");
     div.id = `noti_${id}`
     if (ok) {
@@ -450,11 +463,11 @@ function showNewNoti(str, ok, id) {
     } else {
         div.className = 'toast align-items-center text-bg-danger border-0'
     }
-    
+
     div.role = 'alert';
     div.ariaLive = 'assertive';
     div.ariaAtomic = 'true';
-    div.setAttribute('data-bs-delay', 5000)
+    div.setAttribute('data-bs-delay', 8000)
     div.innerHTML = `
     <div class="d-flex">
         <div class="toast-body" id="new_noti_body">
@@ -471,7 +484,7 @@ function showNewNoti(str, ok, id) {
         if (document.getElementById(`noti_${id}`)) {
             document.getElementById(`noti_${id}`).remove();
         }
-    }, 5000);
+    }, 8000);
 }
 
 function showBtnLoading(id) {

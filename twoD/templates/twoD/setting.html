@@ -33,11 +33,11 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id='mdl_close'></button>
       </div>
       <div class="modal-body"  id='mdl_body'>
-        
+
       </div>
       <div class="modal-footer" id='mdl_footer'>
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id='mdl_close'>Close</button>
-        
+
       </div>
     </div>
   </div>
@@ -54,28 +54,29 @@
 
 
 {% for setting in settings %}
-<div class="card mx-auto mb-3" style="max-width: 50%;min-width: 300px">
-    <h5 class="card-title ms-5 mt-3" id='name_{{ setting.id }}'>{{ setting.user.first_name }}<span  class='ms-2'>(<a href="tel:{{ setting.user.phone|format_phone_number }}">{{ setting.user.phone|format_phone }}</a>)</span></h5>
+<div class="card mx-auto mb-3 p-0" style="max-width: 50%;min-width: 300px">
+    <h5 class="card-title ms-5 mt-3" id='name_{{ setting.id }}'>{{ setting.user.first_name }}<small  class='ms-2'>(<a href="tel:{{ setting.user.phone|format_phone_number }}">{{ setting.user.phone|format_phone }}</a>)</small></h5>
     <h6 class="card-title ms-5 mt-3">လျှိုဝှက်နံပါတ် -<b class='ms-2' id='secrectCode'>{{ setting.user.random_field }}</b></h6>
+    <h6 class="card-title ms-5 mt-3">Username -<b class='ms-2' id='username'>{{ setting.user.username }}</b>
     <div class="card-body">
-      
+
         <ul class="list-group list-group-flush">
             <li class="list-group-item">
-                <div class="input-group mb-3">
+                <div class="input-group ms-0 mb-3">
                 <span class="input-group-text">ပုံမှန် ဘရိတ်</span>
-                <input type="number" class="form-control setting_{{ setting.id }}" id="limit_{{ setting.id }}" value='{{ setting.limit }}' data-id='{{ setting.id }}' data-value='{{ setting.limit }}' onkeyup=(activateSaveBtn(event))>
+                <input type="number" class="form-control setting_{{ setting.id }}" id="limit_{{ setting.id }}" value='{{ setting.limit }}' data-id='{{ setting.id }}' data-value='{{ setting.limit }}' onkeyup=(activateSaveBtn({{ setting.id }}))>
               </div>
             </li>
             <li class="list-group-item">
-                <div class="input-group mb-3">
+                <div class="input-group ms-0 mb-3">
                     <span class="input-group-text">လျော်ဆ</span>
-                    <input type="number" class="form-control  setting_{{ setting.id }}" id="pay_{{ setting.id }}" value='{{ setting.payout_rate }}' data-id='{{ setting.id }}' data-value='{{ setting.payout_rate }}'  onkeyup=(activateSaveBtn(event))>
+                    <input type="number" class="form-control  setting_{{ setting.id }}" id="pay_{{ setting.id }}" value='{{ setting.payout_rate }}' data-id='{{ setting.id }}' data-value='{{ setting.payout_rate }}'  onkeyup=(activateSaveBtn({{ setting.id }}))>
                 </div>
             </li>
             <li class="list-group-item">
-                <div class="input-group mb-3">
+                <div class="input-group ms-0 mb-3">
                     <span class="input-group-text">ကော်ဆ</span>
-                    <input type="number" class="form-control  setting_{{ setting.id }}" id="com_{{ setting.id }}" value='{{ setting.commission }}' data-id='{{ setting.id }}' data-value='{{ setting.commission }}' onkeyup=(activateSaveBtn(event))>
+                    <input type="number" class="form-control  setting_{{ setting.id }}" id="com_{{ setting.id }}" value='{{ setting.commission }}' data-id='{{ setting.id }}' data-value='{{ setting.commission }}' onkeyup=(activateSaveBtn({{ setting.id }}))>
                 </div>
             </li>
         </ul>

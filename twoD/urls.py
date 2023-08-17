@@ -12,6 +12,7 @@ urlpatterns = [
 
     #api path
     path('add_value', views.add_value, name="add_value"),
+    path('close', views.close, name="close"),
     path('getData', views.getData, name='getData'),
     path('getLogs', views.getLogs, name="getLogs"),
     path('deleteLog', views.deleteLog, name="deleteLog"),

@@ -230,3 +230,11 @@ div.input-num {
         transform: translateX(-3000px);
     }
   }
+
+  @media (max-width: 800px) {
+    
+    * :not(script):not(style) {
+        font-size: small !important;
+    }
+
+}
